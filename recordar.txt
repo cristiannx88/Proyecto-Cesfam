@@ -52,6 +52,13 @@ COSAS HECHAS
 (Seleccionar archivos aun no funciona ya que pide rellenar campo Elegir archivo)
 (En el listado permite descargar los archivos pero el Ver solo se puede con los pdf,con los demas los descarga)
 
+- Ahora se puede añadir eventos en la seccion calendario, queda guardada en la base de datos y en el calendario
+(En la tabla calendario hay un campo Lugar que no se esta usando, verificar eso)
+
+
+
+
+
 
 
 

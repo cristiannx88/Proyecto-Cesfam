@@ -12,79 +12,67 @@
 {% block extra_css %}
 <!-- FullCalendar CSS -->
 <link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.css' rel='stylesheet' />
+<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/main.min.css' rel='stylesheet' />
+<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/main.min.css' rel='stylesheet' />
+
 <style>
-    .fc {
-        background: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    }
-    
-    .fc .fc-toolbar-title {
-        font-size: 1.5em;
-        font-weight: 600;
-        color: var(--dark);
-    }
-    
-    .fc .fc-button {
-        background: var(--primary);
-        border: none;
-        border-radius: 8px;
-        padding: 8px 16px;
-        font-weight: 500;
-        text-transform: capitalize;
-        box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1);
-    }
-    
-    .fc .fc-button:hover {
-        background: var(--primary-dark);
-    }
-    
-    .fc .fc-button-primary:not(:disabled).fc-button-active,
-    .fc .fc-button-primary:not(:disabled):active {
-        background: var(--primary-dark);
-    }
-    
-    .fc-day-today {
-        background: var(--primary-light) !important;
-    }
-    
-    .fc-event {
-        border-radius: 4px;
-        padding: 2px 4px;
-        font-size: 0.85em;
-    }
-    
-    .fc-event.holiday {
-        background-color: #ef4444;
-        border-color: #dc2626;
-    }
-    
-    .fc-event.event {
-        background-color: #3b82f6;
-        border-color: #2563eb;
-    }
-    
-    .calendar-legend {
-        margin-top: 20px;
-        padding: 15px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-    
-    .legend-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-    
-    .legend-color {
-        width: 15px;
-        height: 15px;
-        border-radius: 3px;
-        margin-right: 8px;
-    }
+.fc {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+.fc .fc-toolbar-title {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--dark);
+}
+.fc .fc-button {
+    background: var(--primary);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 500;
+    text-transform: capitalize;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1);
+}
+.fc .fc-button:hover {
+    background: var(--primary-dark);
+}
+.fc .fc-day-today {
+    background: var(--primary-light) !important;
+}
+.fc-event {
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 0.85em;
+}
+.fc-event.holiday {
+    background-color: #ef4444;
+    border-color: #dc2626;
+}
+.fc-event.event {
+    background-color: #3b82f6;
+    border-color: #2563eb;
+}
+.calendar-legend {
+    margin-top: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    margin-right: 8px;
+}
 </style>
 {% endblock %}
 
@@ -133,6 +121,16 @@
                         <input type="text" class="form-control" id="eventoTitulo" required>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Tipo de Evento</label>
+                        <select class="form-select" id="eventoTipo" required>
+                            <option value="reunion">Reunión</option>
+                            <option value="capacitacion">Capacitación</option>
+                            <option value="feriado">Feriado</option>
+                            <option value="actividad">Actividad</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Fecha Inicio</label>
                         <input type="datetime-local" class="form-control" id="eventoInicio" required>
                     </div>
@@ -156,12 +154,11 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- FullCalendar JS -->
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/web-component@6.1.8/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/main.min.js'></script>
-<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/main.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/index.global.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById('calendar');
@@ -178,57 +175,70 @@ document.addEventListener('DOMContentLoaded', function() {
             month: 'Mes',
             list: 'Lista'
         },
-        events: [
-            // Feriados 2025 Chile
-            { title: 'Año Nuevo', start: '2025-01-01', className: 'holiday', allDay: true },
-            { title: 'Viernes Santo', start: '2025-04-18', className: 'holiday', allDay: true },
-            { title: 'Sábado Santo', start: '2025-04-19', className: 'holiday', allDay: true },
-            { title: 'Día del Trabajo', start: '2025-05-01', className: 'holiday', allDay: true },
-            { title: 'Día de las Glorias Navales', start: '2025-05-21', className: 'holiday', allDay: true },
-            { title: 'San Pedro y San Pablo', start: '2025-06-29', className: 'holiday', allDay: true },
-            { title: 'Día de la Virgen del Carmen', start: '2025-07-16', className: 'holiday', allDay: true },
-            { title: 'Asunción de la Virgen', start: '2025-08-15', className: 'holiday', allDay: true },
-            { title: 'Independencia Nacional', start: '2025-09-18', className: 'holiday', allDay: true },
-            { title: 'Día de las Glorias del Ejército', start: '2025-09-19', className: 'holiday', allDay: true },
-            { title: 'Día del Encuentro de Dos Mundos', start: '2025-10-12', className: 'holiday', allDay: true },
-            { title: 'Día de Todos los Santos', start: '2025-11-01', className: 'holiday', allDay: true },
-            { title: 'Inmaculada Concepción', start: '2025-12-08', className: 'holiday', allDay: true },
-            { title: 'Navidad', start: '2025-12-25', className: 'holiday', allDay: true }
-        ],
+        events: "{% url 'eventos_json' %}",
         eventClick: function(info) {
             alert(info.event.title);
         },
         dateClick: function(info) {
-            $('#eventoModal').modal('show');
-            $('#eventoInicio').val(info.dateStr);
-            $('#eventoFin').val(info.dateStr);
+            const eventoModal = new bootstrap.Modal(document.getElementById('eventoModal'));
+            eventoModal.show();
+            document.getElementById('eventoInicio').value = info.dateStr + 'T08:00';
+            document.getElementById('eventoFin').value = info.dateStr + 'T17:00';
         }
     });
-    
+
     calendar.render();
 
-    // Manejador para guardar eventos
+    const eventoModalEl = document.getElementById('eventoModal');
+    const eventoModalInstance = new bootstrap.Modal(eventoModalEl);
+
+    // Guardar evento con AJAX y cerrar modal correctamente
     document.getElementById('guardarEvento').addEventListener('click', function() {
         const titulo = document.getElementById('eventoTitulo').value;
+        const tipo = document.getElementById('eventoTipo').value;
         const inicio = document.getElementById('eventoInicio').value;
         const fin = document.getElementById('eventoFin').value;
         const descripcion = document.getElementById('eventoDescripcion').value;
 
         if (titulo && inicio) {
-            calendar.addEvent({
-                title: titulo,
-                start: inicio,
-                end: fin,
-                description: descripcion,
-                className: 'event'
+            fetch("{% url 'agregar_evento' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    titulo: titulo,
+                    tipo_evento: tipo,
+                    inicio: inicio,
+                    fin: fin,
+                    descripcion: descripcion
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    calendar.addEvent({
+                        title: titulo,
+                        start: inicio,
+                        end: fin,
+                        className: tipo === 'feriado' ? 'holiday' : 'event'
+                    });
+
+                    // Cerrar modal correctamente
+                    eventoModalInstance.hide();
+
+                    // Resetear formulario
+                    document.getElementById('eventoForm').reset();
+                } else {
+                    alert('Error al guardar el evento.');
+                }
             });
-
-            // Aquí podrías agregar el código para guardar el evento en la base de datos
-
-            $('#eventoModal').modal('hide');
-            document.getElementById('eventoForm').reset();
+        } else {
+            alert('Por favor completa el título y la fecha de inicio.');
         }
     });
 });
+
 </script>
 {% endblock %}

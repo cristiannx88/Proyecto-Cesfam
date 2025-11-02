@@ -1,8 +1,13 @@
 from django.contrib.auth.decorators import login_required
-from .models import Documento, Comunicado, Usuario, LicenciaMedica, SolicitudPermiso
+from .models import Documento, Comunicado, Usuario, LicenciaMedica, SolicitudPermiso, Calendario
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import ComunicadoForm, DocumentoForm
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+from django.utils import timezone
+
 
 
 def home(request):
@@ -66,9 +71,50 @@ def comunicados_list(request):
 
 
 
+
 def calendario_view(request):
-    """Vista para el calendario"""
-    return render(request, 'cesfam/calendario.html')
+    """Vista principal del calendario"""
+    year = timezone.now().year
+    return render(request, 'cesfam/calendario.html', {'year': year})
+
+def eventos_json(request):
+    """Retorna los eventos en formato JSON para FullCalendar"""
+    eventos = Calendario.objects.all()
+    data = []
+    for e in eventos:
+        data.append({
+            'title': e.titulo,
+            'start': e.fecha_inicio.isoformat(),
+            'end': e.fecha_fin.isoformat(),
+            'description': e.descripcion,
+            'className': 'event' if e.tipo_evento != 'feriado' else 'holiday'
+        })
+    return JsonResponse(data, safe=False)
+
+
+@csrf_exempt
+def agregar_evento(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        titulo = data.get('titulo')
+        tipo = data.get('tipo_evento')
+        inicio = data.get('inicio')
+        fin = data.get('fin')
+        descripcion = data.get('descripcion')
+        usuario = request.user
+
+        evento = Calendario.objects.create(
+            titulo=titulo,
+            tipo_evento=tipo,
+            fecha_inicio=inicio,
+            fecha_fin=fin,
+            descripcion=descripcion,
+            creado_por=usuario
+        )
+        return JsonResponse({'status': 'success', 'evento_id': evento.id})
+    return JsonResponse({'status': 'error'})
+
+
 
 def funcionarios_list(request):
     """Vista para listar funcionarios"""
