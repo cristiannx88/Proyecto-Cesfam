@@ -1,0 +1,107 @@
+{% extends 'cesfam/base.html' %}
+
+{% block title %}Inicio - Dashboard{% endblock %}
+
+{% block page_title %}Dashboard CESFAM{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Estadísticas Principales -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div class="stat-value">{{ total_documentos }}</div>
+            <div class="stat-label">Documentos Totales</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--success); color: white;">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-value">{{ total_funcionarios }}</div>
+            <div class="stat-label">Funcionarios Activos</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--warning); color: white;">
+                <i class="bi bi-clipboard-check"></i>
+            </div>
+            <div class="stat-value">{{ total_permisos }}</div>
+            <div class="stat-label">Solicitudes Pendientes</div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: var(--info); color: white;">
+                <i class="bi bi-bell"></i>
+            </div>
+            <div class="stat-value">{{ comunicados_recientes.count }}</div>
+            <div class="stat-label">Comunicados Nuevos</div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenido Principal -->
+<div class="row">
+    <!-- Comunicados Recientes -->
+    <div class="col-lg-8 mb-4">
+        <div class="content-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="m-0">Comunicados Recientes</h5>
+                <a href="{% url 'comunicados_list' %}" class="btn btn-sm btn-primary">Ver Todos</a>
+            </div>
+            {% if comunicados_recientes %}
+                <div class="list-group">
+                    {% for comunicado in comunicados_recientes %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ comunicado.titulo }}</h6>
+                            <small>{{ comunicado.fecha_publicacion|date:"d/m/Y" }}</small>
+                        </div>
+                        <p class="mb-1">{{ comunicado.contenido|truncatewords:30 }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No hay comunicados recientes.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="col-lg-4 mb-4">
+        <div class="content-card h-100">
+            <h5 class="mb-4">Accesos Rápidos</h5>
+            <div class="d-grid gap-3">
+                <a href="{% url 'documentos_list' %}" class="btn btn-outline-primary d-flex align-items-center">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Gestión de Documentos
+                </a>
+                <a href="{% url 'funcionarios_list' %}" class="btn btn-outline-success d-flex align-items-center">
+                    <i class="bi bi-people me-2"></i>
+                    Directorio de Funcionarios
+                </a>
+                <a href="{% url 'solicitud_permiso_list' %}" class="btn btn-outline-warning d-flex align-items-center">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    Solicitar Permiso
+                </a>
+                <a href="{% url 'licencia_list' %}" class="btn btn-outline-info d-flex align-items-center">
+                    <i class="bi bi-file-medical me-2"></i>
+                    Registro de Licencias
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

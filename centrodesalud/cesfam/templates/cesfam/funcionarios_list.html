@@ -1,0 +1,409 @@
+{% extends 'cesfam/base.html' %}
+
+{% block title %}Gestión de Funcionarios - CESFAM{% endblock %}
+
+{% block page_title %}
+{% if user.rol == 'direccion' %}
+    Panel de Dirección - Gestión de Personal
+{% elif user.rol == 'subdireccion_clinica' %}
+    Panel de Subdirección Clínica - Personal Sanitario
+{% elif user.rol == 'subdireccion_administrativa' %}
+    Panel de Subdirección Administrativa - Personal
+{% else %}
+    Directorio de Funcionarios
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .role-badge {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+    }
+
+    .role-direccion {
+        background-color: #4A235A;
+        color: white;
+    }
+
+    .role-subdireccion-clinica {
+        background-color: #1B4F72;
+        color: white;
+    }
+
+    .role-subdireccion-admin {
+        background-color: #784212;
+        color: white;
+    }
+
+    .role-funcionario {
+        background-color: #186A3B;
+        color: white;
+    }
+
+    .funcionario-card {
+        transition: transform 0.2s;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .funcionario-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .funcionario-header {
+        background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        padding: 1.5rem;
+        color: white;
+    }
+
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin: 0 auto 1rem;
+    }
+
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .department-filter {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .department-filter:hover, .department-filter.active {
+        background-color: var(--primary);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if user.rol in 'direccion,subdireccion_clinica,subdireccion_administrativa' %}
+<!-- Panel de Estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3 class="h2 mb-3">{{ total_funcionarios }}</h3>
+            <p class="text-muted mb-0">Total Funcionarios</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3 class="h2 mb-3">{{ funcionarios_activos }}</h3>
+            <p class="text-muted mb-0">Funcionarios Activos</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3 class="h2 mb-3">{{ licencias_activas }}</h3>
+            <p class="text-muted mb-0">Licencias Activas</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <h3 class="h2 mb-3">{{ vacaciones_pendientes }}</h3>
+            <p class="text-muted mb-0">Vacaciones Pendientes</p>
+        </div>
+    </div>
+</div>
+
+<!-- Botones de Acción (Solo visible para Dirección) -->
+{% if user.rol == 'direccion' %}
+<div class="mb-4">
+    <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#nuevoFuncionarioModal">
+        <i class="bi bi-person-plus me-2"></i>Nuevo Funcionario
+    </button>
+    <button class="btn btn-outline-primary me-2">
+        <i class="bi bi-file-earmark-excel me-2"></i>Exportar a Excel
+    </button>
+    <button class="btn btn-outline-primary">
+        <i class="bi bi-printer me-2"></i>Imprimir Reporte
+    </button>
+</div>
+{% endif %}
+{% endif %}
+
+<!-- Filtros -->
+<div class="filter-section mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="input-group">
+                <span class="input-group-text bg-white">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control" placeholder="Buscar funcionario...">
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="d-flex justify-content-md-end mt-3 mt-md-0">
+                <select class="form-select me-2 w-auto">
+                    <option value="">Todos los Departamentos</option>
+                    <option>Médico</option>
+                    <option>Enfermería</option>
+                    <option>Administrativo</option>
+                    <option>Dental</option>
+                </select>
+                <select class="form-select me-2 w-auto">
+                    <option value="">Estado</option>
+                    <option>Activo</option>
+                    <option>Licencia</option>
+                    <option>Vacaciones</option>
+                </select>
+                <select class="form-select w-auto">
+                    <option>Ordenar por Nombre</option>
+                    <option>Ordenar por Cargo</option>
+                    <option>Ordenar por Departamento</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Funcionarios -->
+<div class="row" id="funcionariosList">
+    <!-- Ejemplo de Tarjeta de Funcionario -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card funcionario-card">
+            <div class="funcionario-header text-center">
+                <div class="avatar-circle">
+                    JP
+                </div>
+                <h5 class="mb-1">Dr. Juan Pérez</h5>
+                <p class="mb-2">Médico General</p>
+                <span class="badge role-badge role-direccion">Dirección</span>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2">
+                        <i class="bi bi-envelope me-2"></i>juan.perez@cesfam.cl
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-telephone me-2"></i>+56 9 1234 5678
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-building me-2"></i>Departamento Médico
+                    </li>
+                    <li>
+                        <i class="bi bi-calendar-check me-2"></i>Estado: Activo
+                    </li>
+                </ul>
+                {% if user.rol in 'direccion,subdireccion_clinica,subdireccion_administrativa' %}
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editarFuncionarioModal">
+                        <i class="bi bi-pencil me-2"></i>Editar
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-text me-2"></i>Ver Historial</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar2-week me-2"></i>Ver Horario</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-envelope me-2"></i>Enviar Mensaje</a></li>
+                            {% if user.rol == 'direccion' %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-person-x me-2"></i>Dar de Baja</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <button class="btn btn-outline-primary w-100">
+                    <i class="bi bi-envelope me-2"></i>Contactar
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Ejemplo de Tarjeta de Funcionario -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card funcionario-card">
+            <div class="funcionario-header text-center">
+                <div class="avatar-circle">
+                    MG
+                </div>
+                <h5 class="mb-1">María González</h5>
+                <p class="mb-2">Enfermera Jefe</p>
+                <span class="badge role-badge role-subdireccion-clinica">Subdirección Clínica</span>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2">
+                        <i class="bi bi-envelope me-2"></i>maria.gonzalez@cesfam.cl
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-telephone me-2"></i>+56 9 8765 4321
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-building me-2"></i>Departamento Enfermería
+                    </li>
+                    <li>
+                        <i class="bi bi-calendar-check me-2"></i>Estado: Vacaciones
+                    </li>
+                </ul>
+                {% if user.rol in 'direccion,subdireccion_clinica,subdireccion_administrativa' %}
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editarFuncionarioModal">
+                        <i class="bi bi-pencil me-2"></i>Editar
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-file-text me-2"></i>Ver Historial</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar2-week me-2"></i>Ver Horario</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-envelope me-2"></i>Enviar Mensaje</a></li>
+                            {% if user.rol == 'direccion' %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-person-x me-2"></i>Dar de Baja</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                {% else %}
+                <button class="btn btn-outline-primary w-100">
+                    <i class="bi bi-envelope me-2"></i>Contactar
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo Funcionario -->
+<div class="modal fade" id="nuevoFuncionarioModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuevo Funcionario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="nuevoFuncionarioForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Apellidos</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">RUT</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Cargo</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Departamento</label>
+                            <select class="form-select" required>
+                                <option value="">Seleccionar...</option>
+                                <option>Médico</option>
+                                <option>Enfermería</option>
+                                <option>Administrativo</option>
+                                <option>Dental</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Rol en el Sistema</label>
+                            <select class="form-select" required>
+                                <option value="">Seleccionar...</option>
+                                <option>Dirección</option>
+                                <option>Subdirección Clínica</option>
+                                <option>Subdirección Administrativa</option>
+                                <option>Funcionario</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-control" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="nuevoFuncionarioForm" class="btn btn-primary">Guardar Funcionario</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejador de búsqueda
+    const searchInput = document.querySelector('input[type="text"]');
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        // Implementar lógica de búsqueda
+    });
+
+    // Manejador de filtros
+    document.querySelectorAll('select').forEach(select => {
+        select.addEventListener('change', function() {
+            // Implementar lógica de filtrado
+        });
+    });
+
+    // Manejador del formulario de nuevo funcionario
+    const nuevoFuncionarioForm = document.getElementById('nuevoFuncionarioForm');
+    if (nuevoFuncionarioForm) {
+        nuevoFuncionarioForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Implementar lógica de guardado
+            const modal = bootstrap.Modal.getInstance(document.getElementById('nuevoFuncionarioModal'));
+            modal.hide();
+            // Mostrar notificación de éxito
+            alert('Funcionario guardado con éxito');
+        });
+    }
+});
+</script>
+{% endblock %}

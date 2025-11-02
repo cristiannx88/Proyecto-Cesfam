@@ -1,0 +1,396 @@
+{% extends 'cesfam/base.html' %}
+
+{% block title %}Licencias Médicas - CESFAM{% endblock %}
+
+{% block page_title %}Gestión de Licencias Médicas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .license-card {
+        transition: transform 0.2s;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .license-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+    }
+
+    .status-active {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .status-expired {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .status-pending {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .quick-stats {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 15px;
+        padding: 2rem;
+        text-align: center;
+        background: #f8f9fa;
+        transition: all 0.3s;
+    }
+
+    .upload-area:hover {
+        border-color: var(--primary);
+        background: #fff;
+    }
+
+    .upload-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .document-preview {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 3rem;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.5rem;
+        top: 0;
+        height: 100%;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -1.75rem;
+        top: 0;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Estadísticas Rápidas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="quick-stats">
+            <h3 class="h2 mb-3">2</h3>
+            <p class="text-muted mb-0">Licencias Activas</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="quick-stats">
+            <h3 class="h2 mb-3">15</h3>
+            <p class="text-muted mb-0">Días de Licencia</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="quick-stats">
+            <h3 class="h2 mb-3">1</h3>
+            <p class="text-muted mb-0">Pendientes de Revisión</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="quick-stats">
+            <h3 class="h2 mb-3">8</h3>
+            <p class="text-muted mb-0">Total Año Actual</p>
+        </div>
+    </div>
+</div>
+
+<!-- Botones de Acción -->
+<div class="mb-4">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaLicenciaModal">
+        <i class="bi bi-plus-circle me-2"></i>Cargar Nueva Licencia
+    </button>
+    <button class="btn btn-outline-primary ms-2">
+        <i class="bi bi-download me-2"></i>Descargar Historial
+    </button>
+</div>
+
+<!-- Lista de Licencias -->
+<div class="row">
+    <!-- Licencia Activa -->
+    <div class="col-12 mb-3">
+        <div class="card license-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="card-title">Licencia Médica #123456</h5>
+                        <p class="text-muted mb-0">Registrada: 01/11/2025</p>
+                    </div>
+                    <span class="badge status-badge status-active">Activa</span>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Fecha Inicio:</strong> 01/11/2025</p>
+                        <p class="mb-1"><strong>Fecha Término:</strong> 15/11/2025</p>
+                        <p class="mb-1"><strong>Días Totales:</strong> 15</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Tipo:</strong> Enfermedad Común</p>
+                        <p class="mb-1"><strong>Médico:</strong> Dr. Juan Pérez</p>
+                        <p class="mb-1"><strong>Institución:</strong> Hospital Central</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <strong>Documentos:</strong>
+                    <div class="d-flex gap-2 mt-2">
+                        <a href="#" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-file-pdf me-1"></i>Formulario Licencia
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-file-medical me-1"></i>Certificado Médico
+                        </a>
+                    </div>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <small class="text-muted">01/11/2025 - Licencia registrada</small>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <small class="text-muted">01/11/2025 - Documentación validada</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Licencia Pendiente -->
+    <div class="col-12 mb-3">
+        <div class="card license-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="card-title">Licencia Médica #123457</h5>
+                        <p class="text-muted mb-0">Registrada: 31/10/2025</p>
+                    </div>
+                    <span class="badge status-badge status-pending">Pendiente</span>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Fecha Inicio:</strong> 20/11/2025</p>
+                        <p class="mb-1"><strong>Fecha Término:</strong> 27/11/2025</p>
+                        <p class="mb-1"><strong>Días Totales:</strong> 7</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Tipo:</strong> Post Operatorio</p>
+                        <p class="mb-1"><strong>Médico:</strong> Dra. María Silva</p>
+                        <p class="mb-1"><strong>Institución:</strong> Clínica San José</p>
+                    </div>
+                </div>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Pendiente de validación por RRHH
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Licencia -->
+<div class="modal fade" id="nuevaLicenciaModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cargar Nueva Licencia Médica</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="licenciaForm">
+                    <!-- Información General -->
+                    <div class="mb-4">
+                        <h6>Información General</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">N° de Licencia</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tipo de Licencia</label>
+                                <select class="form-select" required>
+                                    <option value="">Seleccione tipo...</option>
+                                    <option>Enfermedad Común</option>
+                                    <option>Maternal / Paternal</option>
+                                    <option>Accidente Laboral</option>
+                                    <option>Post Operatorio</option>
+                                    <option>Otro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fechas -->
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha Término</label>
+                            <input type="date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <!-- Información Médica -->
+                    <div class="mb-4">
+                        <h6>Información Médica</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre del Médico</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Institución de Salud</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Documentación -->
+                    <div class="mb-4">
+                        <h6>Documentación</h6>
+                        <div class="upload-area" id="dropArea">
+                            <i class="bi bi-cloud-upload upload-icon"></i>
+                            <h5>Arrastre los documentos aquí</h5>
+                            <p class="text-muted">o</p>
+                            <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                Seleccionar Archivos
+                            </button>
+                            <input type="file" id="fileInput" class="d-none" multiple>
+                            <p class="text-muted mt-2">
+                                Formatos aceptados: PDF, JPG, PNG (máx. 10MB)
+                            </p>
+                        </div>
+                        <div id="filePreview" class="document-preview d-none">
+                            <!-- Los archivos seleccionados se mostrarán aquí -->
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-control" rows="3"></textarea>
+                        <div class="form-text">
+                            Agregue cualquier información adicional relevante.
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="licenciaForm" class="btn btn-primary">Registrar Licencia</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejador del formulario
+    const form = document.getElementById('licenciaForm');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Aquí iría la lógica de envío
+        const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaLicenciaModal'));
+        modal.hide();
+        // Mostrar notificación
+        alert('Licencia registrada exitosamente');
+    });
+
+    // Funcionalidad de drag and drop
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        dropArea.classList.add('border-primary');
+    }
+
+    function unhighlight(e) {
+        dropArea.classList.remove('border-primary');
+    }
+
+    dropArea.addEventListener('drop', handleDrop, false);
+    fileInput.addEventListener('change', handleFiles, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles({target: {files: files}});
+    }
+
+    function handleFiles(e) {
+        const files = [...e.target.files];
+        filePreview.classList.remove('d-none');
+        filePreview.innerHTML = files.map(file => `
+            <div class="d-flex align-items-center justify-content-between p-2 border rounded mb-2">
+                <div>
+                    <i class="bi bi-file-earmark me-2"></i>
+                    ${file.name}
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+});
+</script>
+{% endblock %}

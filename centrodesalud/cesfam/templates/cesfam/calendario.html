@@ -1,0 +1,234 @@
+{% extends 'cesfam/base.html' %}
+
+{% block title %}Calendario - CESFAM Santa Rosa{% endblock %}
+
+{% block page_title %}Calendario Institucional{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+<li class="breadcrumb-item active">Calendario</li>
+{% endblock %}
+
+{% block extra_css %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.css' rel='stylesheet' />
+<style>
+    .fc {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+    
+    .fc .fc-toolbar-title {
+        font-size: 1.5em;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .fc .fc-button {
+        background: var(--primary);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 500;
+        text-transform: capitalize;
+        box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1);
+    }
+    
+    .fc .fc-button:hover {
+        background: var(--primary-dark);
+    }
+    
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button-primary:not(:disabled):active {
+        background: var(--primary-dark);
+    }
+    
+    .fc-day-today {
+        background: var(--primary-light) !important;
+    }
+    
+    .fc-event {
+        border-radius: 4px;
+        padding: 2px 4px;
+        font-size: 0.85em;
+    }
+    
+    .fc-event.holiday {
+        background-color: #ef4444;
+        border-color: #dc2626;
+    }
+    
+    .fc-event.event {
+        background-color: #3b82f6;
+        border-color: #2563eb;
+    }
+    
+    .calendar-legend {
+        margin-top: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .legend-color {
+        width: 15px;
+        height: 15px;
+        border-radius: 3px;
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="m-0">Calendario {{ year }}</h4>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventoModal">
+            <i class="bi bi-plus-lg me-2"></i>Agregar Evento
+        </button>
+    </div>
+    
+    <div id="calendar"></div>
+    
+    <div class="calendar-legend">
+        <h5 class="mb-3">Leyenda</h5>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ef4444;"></div>
+                    <span>Feriados</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #3b82f6;"></div>
+                    <span>Eventos Institucionales</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Agregar/Editar Evento -->
+<div class="modal fade" id="eventoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="eventoForm">
+                    <div class="mb-3">
+                        <label class="form-label">Título del Evento</label>
+                        <input type="text" class="form-control" id="eventoTitulo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Inicio</label>
+                        <input type="datetime-local" class="form-control" id="eventoInicio" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Fin</label>
+                        <input type="datetime-local" class="form-control" id="eventoFin" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" id="eventoDescripcion" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="guardarEvento">Guardar Evento</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/web-component@6.1.8/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/main.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/main.min.js'></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        locale: 'es',
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listWeek'
+        },
+        buttonText: {
+            today: 'Hoy',
+            month: 'Mes',
+            list: 'Lista'
+        },
+        events: [
+            // Feriados 2025 Chile
+            { title: 'Año Nuevo', start: '2025-01-01', className: 'holiday', allDay: true },
+            { title: 'Viernes Santo', start: '2025-04-18', className: 'holiday', allDay: true },
+            { title: 'Sábado Santo', start: '2025-04-19', className: 'holiday', allDay: true },
+            { title: 'Día del Trabajo', start: '2025-05-01', className: 'holiday', allDay: true },
+            { title: 'Día de las Glorias Navales', start: '2025-05-21', className: 'holiday', allDay: true },
+            { title: 'San Pedro y San Pablo', start: '2025-06-29', className: 'holiday', allDay: true },
+            { title: 'Día de la Virgen del Carmen', start: '2025-07-16', className: 'holiday', allDay: true },
+            { title: 'Asunción de la Virgen', start: '2025-08-15', className: 'holiday', allDay: true },
+            { title: 'Independencia Nacional', start: '2025-09-18', className: 'holiday', allDay: true },
+            { title: 'Día de las Glorias del Ejército', start: '2025-09-19', className: 'holiday', allDay: true },
+            { title: 'Día del Encuentro de Dos Mundos', start: '2025-10-12', className: 'holiday', allDay: true },
+            { title: 'Día de Todos los Santos', start: '2025-11-01', className: 'holiday', allDay: true },
+            { title: 'Inmaculada Concepción', start: '2025-12-08', className: 'holiday', allDay: true },
+            { title: 'Navidad', start: '2025-12-25', className: 'holiday', allDay: true }
+        ],
+        eventClick: function(info) {
+            alert(info.event.title);
+        },
+        dateClick: function(info) {
+            $('#eventoModal').modal('show');
+            $('#eventoInicio').val(info.dateStr);
+            $('#eventoFin').val(info.dateStr);
+        }
+    });
+    
+    calendar.render();
+
+    // Manejador para guardar eventos
+    document.getElementById('guardarEvento').addEventListener('click', function() {
+        const titulo = document.getElementById('eventoTitulo').value;
+        const inicio = document.getElementById('eventoInicio').value;
+        const fin = document.getElementById('eventoFin').value;
+        const descripcion = document.getElementById('eventoDescripcion').value;
+
+        if (titulo && inicio) {
+            calendar.addEvent({
+                title: titulo,
+                start: inicio,
+                end: fin,
+                description: descripcion,
+                className: 'event'
+            });
+
+            // Aquí podrías agregar el código para guardar el evento en la base de datos
+
+            $('#eventoModal').modal('hide');
+            document.getElementById('eventoForm').reset();
+        }
+    });
+});
+</script>
+{% endblock %}
