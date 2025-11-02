@@ -1,0 +1,51 @@
+COSAS POR HACER
+
+- En el navbar,hacer que funcionen los iconos de notificacion y mensaje
+ademas tambien que funcione la parte de Mi perfil,Configuracion y Cerrar sesion
+
+- En documentos internos,verificar funcionalidad del filtro
+
+- Verificar funcionalidad de Ver,Editar y Descargar los archvos
+
+- Que me permita subir archivos PDF WORD EXCEL POWERPOINT
+y que me aparezcan listados debajo una vez subidos
+
+- En el menu izquierda la barra para deslizar es muy delgada,verificar eso ya que
+cuesta un poco deslizar hacia abajo por el menu
+
+- En comunicados que me permita publicar comunicados y queden listados debajo
+
+- Las funcionalidades que tienen los comunicados publicados que funcionen tambien como comentar,el check o la alerta
+(tambien que me permita publicar archivos en el comunidado)
+
+- En calendario, que me permita guardar correctamente el evento que añada y luego debajo
+me aparezca un calendario donde pueda moverme por los diferente meses y ver los eventos
+
+- En funcionarios verificar funcionalidad del filtro
+
+- Que me aparezcan listados todos los funcionarios (cuentas) creadas y que el boton contactar redireccione a gmail
+
+- Falta ver lo de manejo de sesiones,como crear usuarios en register
+
+- En sesion admin que haya una seccion Gestion de cuentas donde pueda añadir eliminar(desactivar) editar
+
+- Al crear una nueva cuenta que se requiera de un ID y password del admin (credenciales diferentes a las de su inicio de sesion)
+
+- En seccion solicitud de permisos que funcione todo 
+
+- En solicitud de permisos hay que hacerlo en base al formato que dejo el profesor
+asi que habria que modificar los campos
+
+- En carga de licencias tambien que funcione todo
+
+
+
+
+
+COSAS HECHAS
+
+- 
+
+
+
+

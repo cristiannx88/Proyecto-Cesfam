@@ -6,85 +6,23 @@
 
 {% block extra_css %}
 <style>
-    .comunicado-card {
-        transition: transform 0.2s;
-    }
-    
-    .comunicado-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .comunicado-urgente {
-        border-left: 4px solid var(--danger);
-    }
-
-    .comunicado-importante {
-        border-left: 4px solid var(--warning);
-    }
-
-    .comunicado-normal {
-        border-left: 4px solid var(--primary);
-    }
-
-    .comunicado-info {
-        border-left: 4px solid var(--info);
-    }
-
-    .badge-urgente {
-        background-color: var(--danger);
-    }
-
-    .badge-importante {
-        background-color: var(--warning);
-    }
-
-    .badge-normal {
-        background-color: var(--primary);
-    }
-
-    .badge-info {
-        background-color: var(--info);
-    }
-
-    .quick-post {
-        background: var(--light);
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 2rem;
-    }
-
-    .comunicados-filter {
-        background: white;
-        border-radius: 15px;
-        padding: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .reaction-btn {
-        background: none;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 20px;
-        color: var(--secondary);
-        transition: all 0.2s;
-    }
-
-    .reaction-btn:hover {
-        background: var(--primary-light);
-        color: var(--primary);
-    }
-
-    .reaction-btn.active {
-        background: var(--primary-light);
-        color: var(--primary);
-    }
-
-    .comunicado-footer {
-        border-top: 1px solid rgba(0,0,0,0.05);
-        padding-top: 1rem;
-        margin-top: 1rem;
-    }
+/* -- Tu CSS original -- */
+.comunicado-card { transition: transform 0.2s; }
+.comunicado-card:hover { transform: translateY(-5px); }
+.comunicado-urgente { border-left: 4px solid var(--danger); }
+.comunicado-importante { border-left: 4px solid var(--warning); }
+.comunicado-normal { border-left: 4px solid var(--primary); }
+.comunicado-info { border-left: 4px solid var(--info); }
+.badge-urgente { background-color: var(--danger); }
+.badge-importante { background-color: var(--warning); }
+.badge-normal { background-color: var(--primary); }
+.badge-info { background-color: var(--info); }
+.quick-post { background: var(--light); border-radius: 15px; padding: 20px; margin-bottom: 2rem; }
+.comunicados-filter { background: white; border-radius: 15px; padding: 15px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.reaction-btn { background: none; border: none; padding: 5px 10px; border-radius: 20px; color: var(--secondary); transition: all 0.2s; }
+.reaction-btn:hover { background: var(--primary-light); color: var(--primary); }
+.reaction-btn.active { background: var(--primary-light); color: var(--primary); }
+.comunicado-footer { border-top: 1px solid rgba(0,0,0,0.05); padding-top: 1rem; margin-top: 1rem; }
 </style>
 {% endblock %}
 
@@ -100,18 +38,13 @@
             <small class="text-muted">{{ user.id_rol.nombre_rol }}</small>
         </div>
     </div>
-    <form id="quickPostForm">
-        <div class="mb-3">
-            <textarea class="form-control" id="mensajeRapido" rows="2" 
-                      placeholder="Comparte un anuncio rápido con tus colegas..."></textarea>
-        </div>
+    <form id="quickPostForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">{{ form.titulo }}</div>
+        <div class="mb-3">{{ form.contenido }}</div>
+        <div class="mb-3">{{ form.archivo_adjunto }}</div>
         <div class="d-flex justify-content-between align-items-center">
-            <select class="form-select w-auto" id="tipoComunicado">
-                <option value="normal">Normal</option>
-                <option value="importante">Importante</option>
-                <option value="urgente">Urgente</option>
-                <option value="info">Informativo</option>
-            </select>
+            {{ form.tipo }}
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-send me-2"></i>Publicar
             </button>
@@ -123,18 +56,10 @@
 <div class="comunicados-filter mb-4">
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <button class="btn btn-outline-primary me-2 active" data-filter="todos">
-                Todos
-            </button>
-            <button class="btn btn-outline-danger me-2" data-filter="urgente">
-                Urgentes
-            </button>
-            <button class="btn btn-outline-warning me-2" data-filter="importante">
-                Importantes
-            </button>
-            <button class="btn btn-outline-info" data-filter="info">
-                Informativos
-            </button>
+            <button class="btn btn-outline-primary me-2 active" data-filter="todos">Todos</button>
+            <button class="btn btn-outline-danger me-2" data-filter="urgente">Urgentes</button>
+            <button class="btn btn-outline-warning me-2" data-filter="importante">Importantes</button>
+            <button class="btn btn-outline-info" data-filter="info">Informativos</button>
         </div>
         <div class="d-flex align-items-center">
             <label class="me-2">Ordenar por:</label>
@@ -149,61 +74,57 @@
 
 <!-- Lista de Comunicados -->
 <div class="comunicados-list">
-    <!-- Comunicado Urgente Ejemplo -->
-    <div class="card comunicado-card comunicado-urgente mb-4">
+    {% for comunicado in comunicados %}
+    <div class="card comunicado-card comunicado-{{ comunicado.tipo }} mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div class="d-flex align-items-center">
                     <div class="user-avatar me-3" style="width: 40px; height: 40px;">
-                        AD
+                        {{ comunicado.id_autor.first_name.0 }}{{ comunicado.id_autor.last_name.0 }}
                     </div>
                     <div>
-                        <h6 class="mb-0">Administración</h6>
-                        <small class="text-muted">Hace 2 horas</small>
+                        <h6 class="mb-0">{{ comunicado.id_autor.get_full_name }}</h6>
+                        <small class="text-muted">{{ comunicado.fecha_publicacion|timesince }} atrás</small>
                     </div>
                 </div>
-                <span class="badge badge-urgente">Urgente</span>
+                <span class="badge badge-{{ comunicado.tipo }}">{{ comunicado.tipo|capfirst }}</span>
             </div>
             
-            <h5 class="card-title">Reunión Extraordinaria - Hoy 15:00</h5>
-            <p class="card-text">Se convoca a todo el personal a reunión extraordinaria para discutir protocolos de emergencia.</p>
+            <h5 class="card-title">{{ comunicado.titulo }}</h5>
+            <p class="card-text">{{ comunicado.contenido }}</p>
+            
+            {% if comunicado.archivo_adjunto %}
+            <div class="mb-3">
+                <a href="{{ comunicado.archivo_adjunto.url }}" class="btn btn-light btn-sm">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    {{ comunicado.nombre_archivo }}
+                </a>
+            </div>
+            {% endif %}
             
             <div class="comunicado-footer">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <button class="reaction-btn me-2" data-reaction="importante">
                             <i class="bi bi-exclamation-circle me-1"></i>
-                            <span>15</span>
+                            <span>0</span>
                         </button>
                         <button class="reaction-btn me-2" data-reaction="visto">
                             <i class="bi bi-check-circle me-1"></i>
-                            <span>32</span>
+                            <span>0</span>
                         </button>
                     </div>
                     <div>
                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" 
-                                data-bs-target="#comentarios1">
+                                data-bs-target="#comentarios{{ forloop.counter }}">
                             <i class="bi bi-chat-dots me-1"></i>
-                            Comentarios (5)
+                            Comentarios (0)
                         </button>
                     </div>
                 </div>
                 
-                <!-- Comentarios -->
-                <div class="collapse mt-3" id="comentarios1">
+                <div class="collapse mt-3" id="comentarios{{ forloop.counter }}">
                     <div class="card card-body bg-light">
-                        <div class="mb-3">
-                            <div class="d-flex mb-2">
-                                <div class="user-avatar me-2" style="width: 30px; height: 30px; font-size: 0.8rem;">
-                                    JD
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Juan Díaz</h6>
-                                    <p class="mb-0 small">¿Se requiere preparar algún informe específico?</p>
-                                    <small class="text-muted">Hace 1 hora</small>
-                                </div>
-                            </div>
-                        </div>
                         <form class="mt-3">
                             <div class="input-group">
                                 <input type="text" class="form-control" placeholder="Escribe un comentario...">
@@ -217,141 +138,34 @@
             </div>
         </div>
     </div>
-
-    <!-- Comunicado Importante Ejemplo -->
-    <div class="card comunicado-card comunicado-importante mb-4">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div class="d-flex align-items-center">
-                    <div class="user-avatar me-3" style="width: 40px; height: 40px;">
-                        RH
-                    </div>
-                    <div>
-                        <h6 class="mb-0">Recursos Humanos</h6>
-                        <small class="text-muted">Ayer</small>
-                    </div>
-                </div>
-                <span class="badge badge-importante">Importante</span>
-            </div>
-            
-            <h5 class="card-title">Actualización de Protocolos COVID-19</h5>
-            <p class="card-text">Se han actualizado los protocolos de atención relacionados con COVID-19. Por favor revisar el documento adjunto.</p>
-            
-            <div class="mb-3">
-                <a href="#" class="btn btn-light btn-sm">
-                    <i class="bi bi-file-pdf me-2"></i>
-                    Protocolos_COVID19_v2.pdf
-                </a>
-            </div>
-            
-            <div class="comunicado-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <button class="reaction-btn me-2 active" data-reaction="importante">
-                            <i class="bi bi-exclamation-circle me-1"></i>
-                            <span>28</span>
-                        </button>
-                        <button class="reaction-btn me-2" data-reaction="visto">
-                            <i class="bi bi-check-circle me-1"></i>
-                            <span>45</span>
-                        </button>
-                    </div>
-                    <div>
-                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" 
-                                data-bs-target="#comentarios2">
-                            <i class="bi bi-chat-dots me-1"></i>
-                            Comentarios (3)
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para Nuevo Comunicado -->
-<div class="modal fade" id="nuevoComunicadoModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Nuevo Comunicado</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="comunicadoForm">
-                    <div class="mb-3">
-                        <label class="form-label">Título</label>
-                        <input type="text" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Contenido</label>
-                        <textarea class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tipo</label>
-                        <select class="form-select">
-                            <option value="normal">Normal</option>
-                            <option value="importante">Importante</option>
-                            <option value="urgente">Urgente</option>
-                            <option value="info">Informativo</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Archivos Adjuntos</label>
-                        <input type="file" class="form-control">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary">Publicar Comunicado</button>
-            </div>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Manejador de reacciones
+    // Reacciones
     document.querySelectorAll('.reaction-btn').forEach(button => {
         button.addEventListener('click', function() {
             this.classList.toggle('active');
             let count = parseInt(this.querySelector('span').textContent);
-            if (this.classList.contains('active')) {
-                this.querySelector('span').textContent = count + 1;
-            } else {
-                this.querySelector('span').textContent = count - 1;
-            }
+            this.querySelector('span').textContent = this.classList.contains('active') ? count + 1 : count - 1;
         });
     });
 
-    // Manejador de filtros
+    // Filtros
     document.querySelectorAll('[data-filter]').forEach(button => {
         button.addEventListener('click', function() {
             document.querySelectorAll('[data-filter]').forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
-            // Aquí iría la lógica de filtrado
+            // Filtrado dinámico opcional
         });
     });
 
-    // Manejador del formulario de publicación rápida
-    document.getElementById('quickPostForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const mensaje = document.getElementById('mensajeRapido').value;
-        const tipo = document.getElementById('tipoComunicado').value;
-        if (mensaje.trim()) {
-            // Aquí iría la lógica para publicar el mensaje
-            document.getElementById('mensajeRapido').value = '';
-            // Mostrar notificación de éxito
-            alert('Mensaje publicado con éxito');
-        }
-    });
-
-    // Manejador de ordenamiento
+    // Ordenamiento
     document.getElementById('ordenComunicados').addEventListener('change', function() {
-        // Aquí iría la lógica de ordenamiento
+        // Lógica opcional de ordenamiento
     });
 });
 </script>

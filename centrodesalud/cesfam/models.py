@@ -1,7 +1,4 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
@@ -29,7 +26,6 @@ class Usuario(AbstractUser):
     telefono = models.CharField(max_length=15, blank=True, null=True)
     cargo = models.CharField(max_length=100, blank=True, null=True)
     
-   
     class Meta:
         db_table = 'usuario'
         verbose_name = 'Usuario'
@@ -70,6 +66,13 @@ class Documento(models.Model):
         return self.titulo
 
 class Comunicado(models.Model):
+    TIPO_CHOICES = [
+        ('urgente', 'Urgente'),
+        ('importante', 'Importante'),
+        ('normal', 'Normal'),
+        ('info', 'Informativo'),
+    ]
+
     titulo = models.CharField(max_length=200)
     contenido = models.TextField()
     fecha_publicacion = models.DateTimeField(default=timezone.now)
@@ -77,15 +80,17 @@ class Comunicado(models.Model):
     id_autor = models.ForeignKey(Usuario, on_delete=models.PROTECT, related_name='comunicados')
     destacado = models.BooleanField(default=False)
     archivo_adjunto = models.FileField(upload_to='comunicados/%Y/%m/', blank=True, null=True)
-    
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='normal')  # <-- agregado
+
     class Meta:
         db_table = 'comunicado'
         verbose_name = 'Comunicado'
         verbose_name_plural = 'Comunicados'
         ordering = ['-fecha_publicacion']
-    
+
     def __str__(self):
         return self.titulo
+
 
 class Calendario(models.Model):
     TIPO_EVENTO_CHOICES = [
@@ -192,4 +197,4 @@ class LogActividad(models.Model):
         ordering = ['-fecha_hora']
     
     def __str__(self):
-        return f"{self.id_usuario} - {self.accion} ({self.fecha_hora})"        
+        return f"{self.id_usuario} - {self.accion} ({self.fecha_hora})"

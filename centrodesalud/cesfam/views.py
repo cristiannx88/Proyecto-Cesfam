@@ -17,10 +17,35 @@ def documentos_list(request):
     documentos = Documento.objects.all()
     return render(request, 'cesfam/documentos_list.html', {'documentos': documentos})
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import Comunicado
+from .forms import ComunicadoForm
+
+@login_required
 def comunicados_list(request):
-    """Vista para listar comunicados"""
-    comunicados = Comunicado.objects.all()
-    return render(request, 'cesfam/comunicados_list.html', {'comunicados': comunicados})
+    """Vista para listar y crear comunicados"""
+    comunicados = Comunicado.objects.all().order_by('-fecha_publicacion')
+
+    if request.method == 'POST':
+        form = ComunicadoForm(request.POST, request.FILES)
+        if form.is_valid():
+            comunicado = form.save(commit=False)
+            comunicado.id_autor = request.user  # El superusuario actual
+            comunicado.save()
+            messages.success(request, 'Comunicado publicado correctamente.')
+            return redirect('comunicados_list')
+        else:
+            messages.error(request, 'Error al publicar el comunicado. Revisa los campos.')
+    else:
+        form = ComunicadoForm()
+
+    return render(request, 'cesfam/comunicados_list.html', {
+        'form': form,
+        'comunicados': comunicados,
+    })
+
 
 def calendario_view(request):
     """Vista para el calendario"""
