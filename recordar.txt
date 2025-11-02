@@ -38,13 +38,21 @@ asi que habria que modificar los campos
 
 - En carga de licencias tambien que funcione todo
 
-
+- Revisar el uso de las carpetas comunicados y media
 
 
 
 COSAS HECHAS
 
-- 
+- Se puede publicar comunicados con archivo adjunto
+(Falta poder comentar los comunicados y visualizar el nombre del archivo adjunto)
+(fecha programada y destacado,campos de la tabla,no se estan usando,revisar eso)
+
+- Se pueden subir documentos en seccion Documentos internos
+(Seleccionar archivos aun no funciona ya que pide rellenar campo Elegir archivo)
+(En el listado permite descargar los archivos pero el Ver solo se puede con los pdf,con los demas los descarga)
+
+
 
 
 

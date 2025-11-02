@@ -1,6 +1,9 @@
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Documento, Comunicado, Usuario, LicenciaMedica, SolicitudPermiso
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import ComunicadoForm, DocumentoForm
+
 
 def home(request):
     """Vista para la página de inicio"""
@@ -12,16 +15,31 @@ def home(request):
     }
     return render(request, 'cesfam/home.html', context)
 
-def documentos_list(request):
-    """Vista para listar documentos"""
-    documentos = Documento.objects.all()
-    return render(request, 'cesfam/documentos_list.html', {'documentos': documentos})
 
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Comunicado
-from .forms import ComunicadoForm
+
+@login_required
+def documentos_list(request):
+    documentos = Documento.objects.all().order_by('-fecha_subida')
+
+    if request.method == 'POST':
+        form = DocumentoForm(request.POST, request.FILES)
+        if form.is_valid():
+            documento = form.save(commit=False)
+            documento.id_usuario_autor = request.user
+            documento.save()
+            messages.success(request, 'Documento subido correctamente.')
+            return redirect('documentos_list')
+        else:
+            messages.error(request, 'Error al subir el documento. Revisa los campos.')
+    else:
+        form = DocumentoForm()
+
+    return render(request, 'cesfam/documentos_list.html', {
+        'form': form,
+        'documentos': documentos,
+    })
+
+
 
 @login_required
 def comunicados_list(request):
@@ -45,6 +63,7 @@ def comunicados_list(request):
         'form': form,
         'comunicados': comunicados,
     })
+
 
 
 def calendario_view(request):
