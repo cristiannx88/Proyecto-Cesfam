@@ -175,7 +175,18 @@ document.addEventListener('DOMContentLoaded', function() {
             month: 'Mes',
             list: 'Lista'
         },
-        events: "{% url 'eventos_json' %}",
+        // ⚡ Cargar eventos dinámicamente según rango de fechas visible
+        events: {
+            url: "{% url 'eventos_json' %}",
+            method: 'GET',
+            extraParams: function() {
+                return {}; // FullCalendar enviará start y end automáticamente
+            },
+            failure: function() {
+                alert('Error al cargar los eventos');
+            }
+        },
+        lazyFetching: true,
         eventClick: function(info) {
             alert(info.event.title);
         },
@@ -218,17 +229,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    calendar.addEvent({
-                        title: titulo,
-                        start: inicio,
-                        end: fin,
-                        className: tipo === 'feriado' ? 'holiday' : 'event'
-                    });
-
-                    // Cerrar modal correctamente
+                    calendar.refetchEvents(); // 🔄 Recarga eventos sin refrescar toda la página
                     eventoModalInstance.hide();
-
-                    // Resetear formulario
                     document.getElementById('eventoForm').reset();
                 } else {
                     alert('Error al guardar el evento.');
@@ -239,6 +241,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
 </script>
 {% endblock %}

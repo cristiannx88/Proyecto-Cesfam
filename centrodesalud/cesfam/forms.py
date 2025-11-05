@@ -1,5 +1,6 @@
 from django import forms
-from .models import Comunicado, Documento
+from .models import Comunicado, Documento, Usuario
+from django.contrib.auth.forms import UserCreationForm
 
 class ComunicadoForm(forms.ModelForm):
     class Meta:
@@ -39,3 +40,26 @@ class DocumentoForm(forms.ModelForm):
             'ruta_archivo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
+
+
+class RegistroForm(UserCreationForm):
+    class Meta:
+        model = Usuario
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'rut',
+            'telefono',
+            'cargo',
+            'id_rol',  
+            'password1',
+            'password2',
+        ]
+        labels = {
+            'id_rol': 'Rol',
+            'rut': 'RUT',
+            'telefono': 'Teléfono',
+            'cargo': 'Cargo',
+        }

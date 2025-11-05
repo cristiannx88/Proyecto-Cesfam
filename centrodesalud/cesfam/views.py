@@ -2,12 +2,12 @@ from django.contrib.auth.decorators import login_required
 from .models import Documento, Comunicado, Usuario, LicenciaMedica, SolicitudPermiso, Calendario
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import ComunicadoForm, DocumentoForm
+from .forms import ComunicadoForm, DocumentoForm, RegistroForm
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 from django.utils import timezone
-
+from django.contrib.auth import login, authenticate
 
 @login_required
 def home(request):
@@ -19,6 +19,21 @@ def home(request):
         'comunicados_recientes': Comunicado.objects.all()[:5]
     }
     return render(request, 'cesfam/home.html', context)
+
+
+
+def registro(request):
+    if request.method == 'POST':
+        form = RegistroForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Usuario creado correctamente. Ahora puedes iniciar sesión.')
+            return redirect('login')
+        else:
+            messages.error(request, 'Corrige los errores del formulario.')
+    else:
+        form = RegistroForm()
+    return render(request, 'cesfam/registro.html', {'form': form})
 
 
 
@@ -80,18 +95,25 @@ def calendario_view(request):
 
 @login_required
 def eventos_json(request):
-    """Retorna los eventos en formato JSON para FullCalendar"""
-    eventos = Calendario.objects.all()
-    data = []
-    for e in eventos:
-        data.append({
-            'title': e.titulo,
-            'start': e.fecha_inicio.isoformat(),
-            'end': e.fecha_fin.isoformat(),
-            'description': e.descripcion,
-            'className': 'event' if e.tipo_evento != 'feriado' else 'holiday'
-        })
+    """Retorna eventos según rango de fechas"""
+    start = request.GET.get('start')
+    end = request.GET.get('end')
+
+    eventos = Calendario.objects.filter(
+        fecha_inicio__lte=end,
+        fecha_fin__gte=start
+    )
+
+    data = [{
+        'title': e.titulo,
+        'start': e.fecha_inicio.isoformat(),
+        'end': e.fecha_fin.isoformat(),
+        'description': e.descripcion,
+        'className': 'event' if e.tipo_evento != 'feriado' else 'holiday'
+    } for e in eventos]
+
     return JsonResponse(data, safe=False)
+
 
 
 @login_required
