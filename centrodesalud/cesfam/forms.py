@@ -53,13 +53,21 @@ class RegistroForm(UserCreationForm):
             'rut',
             'telefono',
             'cargo',
-            'id_rol',  
+            'departamento',
+            'observaciones',
             'password1',
-            'password2',
+            'password2'
         ]
         labels = {
-            'id_rol': 'Rol',
+            'first_name': 'Nombre',
+            'last_name': 'Apellido',
             'rut': 'RUT',
             'telefono': 'Teléfono',
             'cargo': 'Cargo',
+            'departamento': 'Departamento',
+            'observaciones': 'Observaciones',
+            'email': 'Correo electrónico',
+        }
+        widgets = {
+            'observaciones': forms.Textarea(attrs={'rows': 3}),
         }

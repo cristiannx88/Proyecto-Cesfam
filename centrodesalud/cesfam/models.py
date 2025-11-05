@@ -13,26 +13,53 @@ class Rol(models.Model):
     
     def __str__(self):
         return self.nombre_rol
+    
+
+
+class Cargo(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name_plural = "Cargos"
+
+    def __str__(self):
+        return self.nombre
+    
+
+class Departamento(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name_plural = "Departamentos"
+
+    def __str__(self):
+        return self.nombre
+
 
 class Usuario(AbstractUser):
     ESTADO_CHOICES = [
         ('activo', 'Activo'),
         ('inactivo', 'Inactivo'),
+        ('licencia', 'Licencia'),
+        ('vacaciones', 'Vacaciones'),
     ]
-    
+
     id_rol = models.ForeignKey(Rol, on_delete=models.PROTECT, related_name='usuarios')
-    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='activo')
+    estado = models.CharField(max_length=15, choices=ESTADO_CHOICES, default='activo')
     rut = models.CharField(max_length=12, unique=True, blank=True, null=True)
     telefono = models.CharField(max_length=15, blank=True, null=True)
-    cargo = models.CharField(max_length=100, blank=True, null=True)
-    
+    cargo = models.ForeignKey(Cargo, on_delete=models.SET_NULL, null=True, blank=True)
+    departamento = models.ForeignKey(Departamento, on_delete=models.SET_NULL, null=True, blank=True)
+    observaciones = models.TextField(blank=True, null=True)
+
     class Meta:
         db_table = 'usuario'
         verbose_name = 'Usuario'
         verbose_name_plural = 'Usuarios'
-    
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
 
 class Documento(models.Model):
     ESTADO_CHOICES = [
@@ -198,3 +225,4 @@ class LogActividad(models.Model):
     
     def __str__(self):
         return f"{self.id_usuario} - {self.accion} ({self.fecha_hora})"
+    

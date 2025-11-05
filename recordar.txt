@@ -62,6 +62,11 @@ COSAS HECHAS
 - El logout funciona
 (falta ajustar medidas de seguridad)
 
-
 - Si el navegador se cierra,la sesion se quita y debe iniciar de nuevo,
 tambien si hay inactividad por 1 hora se cierra la sesion
+
+- Pagina de registro lista
+(falta probar funcionalidad y si guarda en la bd)
+
+- Se pueden visualizar los trabajadores con sus datos en la seccion Funcionarios
+Se añadio 2 tablas extras, Cargo y Departamento para asignarlos a los funcionarios

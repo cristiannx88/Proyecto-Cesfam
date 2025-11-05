@@ -21,7 +21,6 @@ def home(request):
     return render(request, 'cesfam/home.html', context)
 
 
-
 def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -143,9 +142,22 @@ def agregar_evento(request):
 
 @login_required
 def funcionarios_list(request):
-    """Vista para listar funcionarios"""
     funcionarios = Usuario.objects.all()
-    return render(request, 'cesfam/funcionarios_list.html', {'funcionarios': funcionarios})
+    total_funcionarios = funcionarios.count()
+    funcionarios_activos = funcionarios.filter(estado='activo').count()
+    licencias_activas = funcionarios.filter(estado='licencia').count()
+    vacaciones_pendientes = funcionarios.filter(estado='vacaciones').count()
+
+    context = {
+        'funcionarios': funcionarios,
+        'total_funcionarios': total_funcionarios,
+        'funcionarios_activos': funcionarios_activos,
+        'licencias_activas': licencias_activas,
+        'vacaciones_pendientes': vacaciones_pendientes,
+    }
+    return render(request, 'cesfam/funcionarios_list.html', context)
+
+
 
 @login_required
 def solicitud_permiso_list(request):

@@ -8,7 +8,9 @@ from .models import (
     Calendario,
     SolicitudPermiso,
     LicenciaMedica,
-    LogActividad
+    LogActividad,
+    Cargo,
+    Departamento
 )
 
 
@@ -21,22 +23,54 @@ class RolAdmin(admin.ModelAdmin):
 @admin.register(Usuario)
 class CustomUserAdmin(UserAdmin):
     model = Usuario
-    list_display = ('username', 'email', 'first_name', 'last_name', 'id_rol', 'estado', 'is_staff', 'is_superuser')
-    list_filter = ('estado', 'is_staff', 'is_superuser', 'id_rol')
-    search_fields = ('username', 'email', 'first_name', 'last_name', 'rut')
+    list_display = (
+        'username', 'first_name', 'last_name', 'email', 'rut',
+        'telefono', 'cargo', 'departamento', 'id_rol', 'estado',
+        'is_staff', 'is_superuser'
+    )
+    list_filter = ('estado', 'id_rol', 'cargo', 'departamento', 'is_staff', 'is_superuser')
+    search_fields = ('username', 'email', 'first_name', 'last_name', 'rut', 'telefono')
     ordering = ('username',)
+
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        ('Información Personal', {'fields': ('first_name', 'last_name', 'email', 'rut', 'telefono', 'cargo')}),
-        ('Permisos', {'fields': ('id_rol', 'estado', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Información Personal', {
+            'fields': (
+                'first_name', 'last_name', 'email', 'rut',
+                'telefono', 'cargo', 'departamento', 'observaciones'
+            )
+        }),
+        ('Permisos y Rol', {
+            'fields': (
+                'id_rol', 'estado',
+                'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'
+            )
+        }),
         ('Fechas Importantes', {'fields': ('last_login', 'date_joined')}),
     )
+
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'id_rol', 'password1', 'password2', 'is_staff', 'is_superuser'),
+            'fields': (
+                'username', 'email', 'first_name', 'last_name', 'rut',
+                'telefono', 'cargo', 'departamento', 'id_rol', 'password1', 'password2',
+                'is_staff', 'is_superuser'
+            ),
         }),
     )
+
+
+@admin.register(Cargo)
+class CargoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre')
+    search_fields = ('nombre',)
+
+
+@admin.register(Departamento)
+class DepartamentoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre')
+    search_fields = ('nombre',)
 
 
 @admin.register(Documento)
