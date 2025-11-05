@@ -9,7 +9,7 @@ import json
 from django.utils import timezone
 
 
-
+@login_required
 def home(request):
     """Vista para la página de inicio"""
     context = {
@@ -71,12 +71,14 @@ def comunicados_list(request):
 
 
 
-
+@login_required
 def calendario_view(request):
     """Vista principal del calendario"""
     year = timezone.now().year
     return render(request, 'cesfam/calendario.html', {'year': year})
 
+
+@login_required
 def eventos_json(request):
     """Retorna los eventos en formato JSON para FullCalendar"""
     eventos = Calendario.objects.all()
@@ -92,6 +94,7 @@ def eventos_json(request):
     return JsonResponse(data, safe=False)
 
 
+@login_required
 @csrf_exempt
 def agregar_evento(request):
     if request.method == 'POST':
@@ -116,21 +119,22 @@ def agregar_evento(request):
 
 
 
+@login_required
 def funcionarios_list(request):
     """Vista para listar funcionarios"""
     funcionarios = Usuario.objects.all()
     return render(request, 'cesfam/funcionarios_list.html', {'funcionarios': funcionarios})
 
+@login_required
 def solicitud_permiso_list(request):
     """Vista para listar solicitudes de permiso"""
     permisos = SolicitudPermiso.objects.all()
     return render(request, 'cesfam/solicitud_permiso_list.html', {'permisos': permisos})
 
+@login_required
 def licencia_list(request):
     """Vista para listar licencias médicas"""
     licencias = LicenciaMedica.objects.all()
     return render(request, 'cesfam/licencia_list.html', {'licencias': licencias})
 
-def base(request):
-    """Vista para la página base"""
-    return render(request, 'cesfam/base.html')
+
