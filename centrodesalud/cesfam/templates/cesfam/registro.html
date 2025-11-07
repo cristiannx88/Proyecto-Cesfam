@@ -19,11 +19,13 @@
         }
 
         .register-card {
-            width: 420px;
+            width: 450px;
             background: white;
             border-radius: 12px;
             padding: 30px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            max-height: 95vh;
         }
 
         .register-card h2 {
@@ -33,7 +35,7 @@
             color: #007bff;
         }
 
-        .form-control {
+        .form-control, .form-select {
             border-radius: 8px;
         }
 
@@ -50,11 +52,6 @@
             color: #777;
         }
 
-        .row .col {
-            padding-right: 8px;
-            padding-left: 8px;
-        }
-
         hr {
             margin: 15px 0;
         }
@@ -62,71 +59,110 @@
 </head>
 <body>
 
-    <div class="register-card">
-        <h2>Registro</h2>
+<div class="register-card">
+    <h2>Registro</h2>
 
-        <form method="POST">
-            {% csrf_token %}
+    <form method="POST">
+        {% csrf_token %}
 
-            <div class="row">
-                <div class="col">
-                    <label class="form-label">{{ form.first_name.label }}</label>
-                    {{ form.first_name }}
-                    {% if form.first_name.errors %}
-                        <div class="text-danger small">{{ form.first_name.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-                <div class="col">
-                    <label class="form-label">{{ form.last_name.label }}</label>
-                    {{ form.last_name }}
-                    {% if form.last_name.errors %}
-                        <div class="text-danger small">{{ form.last_name.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <hr>
-
-            <div class="mb-3">
-                <label class="form-label">{{ form.username.label }}</label>
-                {{ form.username }}
-                {% if form.username.errors %}
-                    <div class="text-danger small">{{ form.username.errors|striptags }}</div>
+        <!-- Nombres -->
+        <div class="row">
+            <div class="col">
+                <label class="form-label">{{ form.first_name.label }}</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <div class="text-danger small">{{ form.first_name.errors|striptags }}</div>
                 {% endif %}
             </div>
-
-            <div class="mb-3">
-                <label class="form-label">{{ form.email.label }}</label>
-                {{ form.email }}
-                {% if form.email.errors %}
-                    <div class="text-danger small">{{ form.email.errors|striptags }}</div>
+            <div class="col">
+                <label class="form-label">{{ form.last_name.label }}</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <div class="text-danger small">{{ form.last_name.errors|striptags }}</div>
                 {% endif %}
             </div>
-
-            <div class="mb-3">
-                <label class="form-label">{{ form.password1.label }}</label>
-                {{ form.password1 }}
-                {% if form.password1.errors %}
-                    <div class="text-danger small">{{ form.password1.errors|striptags }}</div>
-                {% endif %}
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">{{ form.password2.label }}</label>
-                {{ form.password2 }}
-                {% if form.password2.errors %}
-                    <div class="text-danger small">{{ form.password2.errors|striptags }}</div>
-                {% endif %}
-            </div>
-
-            <button type="submit" class="btn btn-primary">Registrar</button>
-        </form>
-
-        <div class="footer">
-            <p>¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
-            <p>Centro de Salud Familiar Santa Rosa &copy; 2025</p>
         </div>
+
+        <hr>
+
+        <!-- Username -->
+        <div class="mb-3">
+            <label class="form-label">{{ form.username.label }}</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="text-danger small">{{ form.username.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label class="form-label">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="text-danger small">{{ form.email.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <!-- RUT -->
+        <div class="mb-3">
+            <label class="form-label">{{ form.rut.label }}</label>
+            {{ form.rut }}
+        </div>
+
+        <!-- Teléfono -->
+        <div class="mb-3">
+            <label class="form-label">{{ form.telefono.label }}</label>
+            {{ form.telefono }}
+        </div>
+
+        <!-- Cargo -->
+        <div class="mb-3">
+            <label class="form-label">{{ form.cargo.label }}</label>
+            {{ form.cargo }}
+        </div>
+
+        <!-- Departamento -->
+        <div class="mb-3">
+            <label class="form-label">{{ form.departamento.label }}</label>
+            {{ form.departamento }}
+        </div>
+        
+        <!-- Rol -->
+        <div class="mb-3">
+            <label class="form-label">{{ form.id_rol.label }}</label>
+            {{ form.id_rol }}
+            {% if form.id_rol.errors %}
+                <div class="text-danger small">{{ form.id_rol.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <hr>
+
+        <!-- Contraseñas -->
+        <div class="mb-3">
+            <label class="form-label">{{ form.password1.label }}</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+                <div class="text-danger small">{{ form.password1.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">{{ form.password2.label }}</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+                <div class="text-danger small">{{ form.password2.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Registrar</button>
+    </form>
+
+    <div class="footer">
+        <p>¿Ya tienes una cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+        <p>Centro de Salud Familiar Santa Rosa &copy; 2025</p>
     </div>
+</div>
 
 </body>
 </html>

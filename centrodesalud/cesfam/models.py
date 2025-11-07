@@ -18,19 +18,25 @@ class Rol(models.Model):
 
 class Cargo(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = "Cargos"
+        db_table = 'cargo'
+        verbose_name = 'Cargo'
+        verbose_name_plural = 'Cargos'
 
     def __str__(self):
         return self.nombre
-    
+
 
 class Departamento(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = "Departamentos"
+        db_table = 'departamento'
+        verbose_name = 'Departamento'
+        verbose_name_plural = 'Departamentos'
 
     def __str__(self):
         return self.nombre

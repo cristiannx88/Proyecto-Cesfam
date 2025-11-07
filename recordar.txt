@@ -7,25 +7,13 @@ ademas tambien que funcione la parte de Mi perfil,Configuracion y Cerrar sesion
 
 - Verificar funcionalidad de Ver,Editar y Descargar los archvos
 
-- Que me permita subir archivos PDF WORD EXCEL POWERPOINT
-y que me aparezcan listados debajo una vez subidos
-
 - En el menu izquierda la barra para deslizar es muy delgada,verificar eso ya que
 cuesta un poco deslizar hacia abajo por el menu
-
-- En comunicados que me permita publicar comunicados y queden listados debajo
 
 - Las funcionalidades que tienen los comunicados publicados que funcionen tambien como comentar,el check o la alerta
 (tambien que me permita publicar archivos en el comunidado)
 
-- En calendario, que me permita guardar correctamente el evento que añada y luego debajo
-me aparezca un calendario donde pueda moverme por los diferente meses y ver los eventos
-
 - En funcionarios verificar funcionalidad del filtro
-
-- Que me aparezcan listados todos los funcionarios (cuentas) creadas y que el boton contactar redireccione a gmail
-
-- Falta ver lo de manejo de sesiones,como crear usuarios en register
 
 - En sesion admin que haya una seccion Gestion de cuentas donde pueda añadir eliminar(desactivar) editar
 
@@ -40,7 +28,6 @@ asi que habria que modificar los campos
 
 - Revisar el uso de las carpetas comunicados y media
 
-- Falta pagina de registro
 
 
 
@@ -70,3 +57,12 @@ tambien si hay inactividad por 1 hora se cierra la sesion
 
 - Se pueden visualizar los trabajadores con sus datos en la seccion Funcionarios
 Se añadio 2 tablas extras, Cargo y Departamento para asignarlos a los funcionarios
+(Falta que el boton contactar en cada tarjeta del funcionario lleve a su gmail)
+
+
+Usuarios creados:
+Juanrojas
+cesfam123
+
+Administrador (superusuario)
+123456

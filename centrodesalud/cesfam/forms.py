@@ -1,6 +1,7 @@
 from django import forms
-from .models import Comunicado, Documento, Usuario
+from .models import Comunicado, Documento, Usuario, Rol
 from django.contrib.auth.forms import UserCreationForm
+
 
 class ComunicadoForm(forms.ModelForm):
     class Meta:
@@ -28,7 +29,6 @@ class ComunicadoForm(forms.ModelForm):
         }
 
 
-
 class DocumentoForm(forms.ModelForm):
     class Meta:
         model = Documento
@@ -41,8 +41,15 @@ class DocumentoForm(forms.ModelForm):
         }
 
 
-
 class RegistroForm(UserCreationForm):
+    id_rol = forms.ModelChoiceField(
+        queryset=Rol.objects.all(),
+        label="Rol",
+        required=True,
+        empty_label="Seleccione un rol",
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
     class Meta:
         model = Usuario
         fields = [
@@ -55,6 +62,7 @@ class RegistroForm(UserCreationForm):
             'cargo',
             'departamento',
             'observaciones',
+            'id_rol',  
             'password1',
             'password2'
         ]
@@ -67,6 +75,7 @@ class RegistroForm(UserCreationForm):
             'departamento': 'Departamento',
             'observaciones': 'Observaciones',
             'email': 'Correo electrónico',
+            'id_rol': 'Rol del usuario',
         }
         widgets = {
             'observaciones': forms.Textarea(attrs={'rows': 3}),
