@@ -1,14 +1,15 @@
 COSAS POR HACER
 
+- La pagina de calendario se demora un poco en cargar,optimizar eso
+
 - En el navbar,hacer que funcionen los iconos de notificacion y mensaje
-ademas tambien que funcione la parte de Mi perfil,Configuracion y Cerrar sesion
+
+- En el navbar, el configuracion reemplazar por un "Cambiar contraseña"
+(ver que hacer con el Mi perfil)
 
 - En documentos internos,verificar funcionalidad del filtro
 
-- Verificar funcionalidad de Ver,Editar y Descargar los archvos
-
-- En el menu izquierda la barra para deslizar es muy delgada,verificar eso ya que
-cuesta un poco deslizar hacia abajo por el menu
+- Verificar funcionalidad de Ver,Editar y Descargar los archivos
 
 - Las funcionalidades que tienen los comunicados publicados que funcionen tambien como comentar,el check o la alerta
 (tambien que me permita publicar archivos en el comunidado)
@@ -17,16 +18,43 @@ cuesta un poco deslizar hacia abajo por el menu
 
 - En sesion admin que haya una seccion Gestion de cuentas donde pueda añadir eliminar(desactivar) editar
 
-- Al crear una nueva cuenta que se requiera de un ID y password del admin (credenciales diferentes a las de su inicio de sesion)
+- Que en la seccion calendario,todos los eventos añadidos o existentes se puedan visualizar en un listado
+debajo del calendario
 
-- En seccion solicitud de permisos que funcione todo 
+- Que el formulario funcione
 
-- En solicitud de permisos hay que hacerlo en base al formato que dejo el profesor
-asi que habria que modificar los campos
+- El listado esta bien el diseño,pero para que una solicitud se apruebe debe ser aprobada por la Direccion y la subdireccion,por ambos
+(Si solo lo ha aprobado 1,dejar en pendiente y mostrar quien la aprobo)
+(Si la aprobaron ambas mostrar como aprobado)
+(Mostrar quienes la aprobaron, y ademas la fecha y la hora)
 
-- En carga de licencias tambien que funcione todo
+- Preguntar al profesor sobre los dias solicitadoos y dias disponibles,ya que eso creo que no se especifica
+
+- Que el Cancelar y editar solicitud en el listado funcione
+
+- Si la solicitud fue aprobada, el boton Imprimir comprobante funcione,esto descargara un archivo pdf con un formulario.
+Los datos se rellenaran trayendolos de la base de datos
+(El formato del formulario es el que dejo el profe,debe ser el mismo)
+(Los campos de los que no se tenga info o se deban rellenar a mano dejarlos en blanco por ahora)
+
+- En seccion carga de licencias, que el formulario de cargar licencia funcione pero antes
+quitar los campos  N° de licencia,Nombre del medico y institucion de salud.El campo tipo de licencia
+reemplazar por un Listado de trabajadores,para asi escoger al que sea la licencia medica.
+Que funcione todo y se envie correctamente y se pueda ver en el listado la licencia
+
+- Boton descargar historial descarge un pdf con el listado de licencias medicas existentes
+
+- Mantener las mismas plantillas por ahora
+
+- Revisar si los campos de las tablas de la bd se rellenan todos o cuales quedan Null para ver que hacer con ellos
 
 - Revisar el uso de las carpetas comunicados y media
+
+- Controlar o asignar de alguna forma si una cuenta esta activa o inactiva
+
+- Falta funcionalidad del boton Imprimir comprobante,pero para revisarlo se debe aprobar una solicitud desde direccion y subdireccion
+
+
 
 
 
@@ -53,11 +81,33 @@ COSAS HECHAS
 tambien si hay inactividad por 1 hora se cierra la sesion
 
 - Pagina de registro lista
-(falta probar funcionalidad y si guarda en la bd)
 
 - Se pueden visualizar los trabajadores con sus datos en la seccion Funcionarios
 Se añadio 2 tablas extras, Cargo y Departamento para asignarlos a los funcionarios
 (Falta que el boton contactar en cada tarjeta del funcionario lleve a su gmail)
+
+- En solicitud de permiso que el boton calendario lleva a la pagina de calendario y se quito el
+campo motivo en la solicitud del formulario (no era necesario ese campo)
+
+- En solicitud de permisos ya funciona el añadir,cancelar y editar,el boton lleva calendario lleva a la pagina de calendario
+los detalles en el listado estan listos
+(Falta revisar y probar lo de aprobar desde direccion y subdireccion para ver si se refleja en los detalles)
+(falta funcionalidad de boton imprimir comprobante,usar la foto del pdf con los campos que se ven ahi)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 Usuarios creados:

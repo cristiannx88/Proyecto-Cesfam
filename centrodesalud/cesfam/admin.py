@@ -93,12 +93,13 @@ class CalendarioAdmin(admin.ModelAdmin):
     list_filter = ('tipo_evento', 'fecha_inicio')
     search_fields = ('titulo', 'descripcion', 'lugar', 'creado_por__username')
 
+from django.contrib import admin
+from .models import SolicitudPermiso
 
 @admin.register(SolicitudPermiso)
 class SolicitudPermisoAdmin(admin.ModelAdmin):
-    list_display = ('funcionario', 'tipo_permiso', 'fecha_inicio', 'fecha_fin', 'estado', 'revisado_por')
-    list_filter = ('tipo_permiso', 'estado')
-    search_fields = ('funcionario__username', 'motivo', 'revisado_por__username')
+    list_display = ('tipo_permiso', 'fecha_inicio', 'fecha_fin', 'estado', 'fecha_solicitud')
+
 
 
 @admin.register(LicenciaMedica)

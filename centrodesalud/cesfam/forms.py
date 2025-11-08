@@ -1,5 +1,5 @@
 from django import forms
-from .models import Comunicado, Documento, Usuario, Rol
+from .models import Comunicado, Documento, Usuario, Rol, SolicitudPermiso
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -79,4 +79,35 @@ class RegistroForm(UserCreationForm):
         }
         widgets = {
             'observaciones': forms.Textarea(attrs={'rows': 3}),
+        }
+
+
+class SolicitudPermisoForm(forms.ModelForm):
+    class Meta:
+        model = SolicitudPermiso
+        fields = ['tipo_permiso', 'fecha_inicio', 'fecha_fin', 'documento_respaldo']
+
+        widgets = {
+            'tipo_permiso': forms.Select(attrs={
+                'class': 'form-select',
+                'placeholder': 'Seleccione el tipo de permiso'
+            }),
+            'fecha_inicio': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'fecha_fin': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'documento_respaldo': forms.ClearableFileInput(attrs={
+                'class': 'form-control'
+            }),
+        }
+
+        labels = {
+            'tipo_permiso': 'Tipo de Permiso',
+            'fecha_inicio': 'Fecha de Inicio',
+            'fecha_fin': 'Fecha de Fin',
+            'documento_respaldo': 'Documento de Respaldo (opcional)',
         }

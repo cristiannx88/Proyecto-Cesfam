@@ -106,6 +106,31 @@
     </div>
 </div>
 
+<div class="mt-4">
+    <h5>Lista de Eventos Registrados</h5>
+    <div class="list-group">
+        {% for evento in eventos %}
+        <div class="list-group-item list-group-item-action mb-2">
+            <div class="d-flex justify-content-between">
+                <strong>{{ evento.titulo }}</strong>
+                <span class="badge {% if evento.tipo_evento == 'feriado' %}bg-danger{% else %}bg-primary{% endif %}">
+                    {{ evento.get_tipo_evento_display|default:evento.tipo_evento }}
+                </span>
+            </div>
+            <div class="text-muted small">
+                {{ evento.fecha_inicio|date:"d/m/Y H:i" }} - {{ evento.fecha_fin|date:"d/m/Y H:i" }}
+            </div>
+            {% if evento.descripcion %}
+            <p class="mb-0">{{ evento.descripcion }}</p>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-muted">No hay eventos registrados.</p>
+        {% endfor %}
+    </div>
+</div>
+
+
 <!-- Modal para Agregar/Editar Evento -->
 <div class="modal fade" id="eventoModal" tabindex="-1">
     <div class="modal-dialog">

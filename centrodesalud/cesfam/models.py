@@ -151,39 +151,66 @@ class Calendario(models.Model):
     def __str__(self):
         return self.titulo
 
+
 class SolicitudPermiso(models.Model):
-    TIPO_PERMISO_CHOICES = [
-        ('administrativo', 'Día Administrativo'),
-        ('vacaciones', 'Vacaciones'),
-        ('permiso_personal', 'Permiso Personal'),
-        ('permiso_medico', 'Permiso Médico'),
+    TIPOS_PERMISO = [
+        ('Administrativo', 'Día Administrativo - Trámites personales'),
+        ('Libre', 'Día Libre - Compensación por horas extras'),
     ]
-    
-    ESTADO_CHOICES = [
-        ('pendiente', 'Pendiente'),
-        ('aprobado', 'Aprobado'),
-        ('rechazado', 'Rechazado'),
+
+    ESTADOS = [
+        ('Pendiente', 'Pendiente'),
+        ('Aprobado', 'Aprobado'),
+        ('Rechazado', 'Rechazado'),
+        ('Cancelado', 'Cancelado'),
     ]
-    
-    funcionario = models.ForeignKey(Usuario, on_delete=models.PROTECT, related_name='solicitudes_permiso')
-    tipo_permiso = models.CharField(max_length=50, choices=TIPO_PERMISO_CHOICES)
+
+    tipo_permiso = models.CharField(max_length=50, choices=TIPOS_PERMISO)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
-    motivo = models.TextField()
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
-    fecha_solicitud = models.DateTimeField(default=timezone.now)
-    revisado_por = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='permisos_revisados')
-    fecha_revision = models.DateTimeField(null=True, blank=True)
-    observaciones = models.TextField(blank=True, null=True)
-    
-    class Meta:
-        db_table = 'solicitud_permiso'
-        verbose_name = 'Solicitud de Permiso'
-        verbose_name_plural = 'Solicitudes de Permiso'
-        ordering = ['-fecha_solicitud']
-    
+    documento_respaldo = models.FileField(upload_to='permisos/', blank=True, null=True)
+
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
+
+    revisado_por_direccion = models.CharField(max_length=100, null=True, blank=True)
+    fecha_revision_direccion = models.DateTimeField(null=True, blank=True)
+    revisado_por_subdireccion = models.CharField(max_length=100, null=True, blank=True)
+    fecha_revision_subdireccion = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
-        return f"{self.funcionario} - {self.tipo_permiso} ({self.estado})"
+        return f"{self.tipo_permiso} ({self.estado})"
+
+    def estado_detallado(self):
+        if self.estado.lower() == 'aprobado':
+            detalles = []
+            if self.revisado_por_direccion and self.fecha_revision_direccion:
+                detalles.append(f"Dirección ({self.fecha_revision_direccion.strftime('%d/%m/%Y %H:%M')})")
+            if self.revisado_por_subdireccion and self.fecha_revision_subdireccion:
+                detalles.append(f"Subdirección ({self.fecha_revision_subdireccion.strftime('%d/%m/%Y %H:%M')})")
+            if detalles:
+                return "Aprobado por " + " y ".join(detalles)
+            else:
+                return "Aprobado"
+        elif self.estado.lower() == 'rechazado':
+            return "Solicitud Rechazada"
+        elif self.estado.lower() == 'cancelado':
+            return "Solicitud cancelada por el funcionario"
+        else:  # Pendiente
+            if self.revisado_por_direccion and not self.revisado_por_subdireccion:
+                return "Pendiente: Falta revisión Subdirección"
+            elif self.revisado_por_subdireccion and not self.revisado_por_direccion:
+                return "Pendiente: Falta revisión Dirección"
+            else:
+                return "Pendiente (sin revisión)"
+
+
+    @property
+    def dias_solicitados(self):
+        """Calcula automáticamente la cantidad de días solicitados"""
+        return (self.fecha_fin - self.fecha_inicio).days + 1
+
+
 
 class LicenciaMedica(models.Model):
     TIPO_LICENCIA_CHOICES = [

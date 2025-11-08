@@ -1,13 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from .models import Documento, Comunicado, Usuario, LicenciaMedica, SolicitudPermiso, Calendario
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import ComunicadoForm, DocumentoForm, RegistroForm
+from .forms import ComunicadoForm, DocumentoForm, RegistroForm, SolicitudPermisoForm
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 from django.utils import timezone
 from django.contrib.auth import login, authenticate
+
 
 @login_required
 def home(request):
@@ -89,7 +90,8 @@ def comunicados_list(request):
 def calendario_view(request):
     """Vista principal del calendario"""
     year = timezone.now().year
-    return render(request, 'cesfam/calendario.html', {'year': year})
+    eventos = Calendario.objects.all().order_by('fecha_inicio')
+    return render(request, 'cesfam/calendario.html', {'year': year, 'eventos': eventos})
 
 
 @login_required
@@ -161,9 +163,83 @@ def funcionarios_list(request):
 
 @login_required
 def solicitud_permiso_list(request):
-    """Vista para listar solicitudes de permiso"""
-    permisos = SolicitudPermiso.objects.all()
-    return render(request, 'cesfam/solicitud_permiso_list.html', {'permisos': permisos})
+    """
+    Vista para listar las solicitudes de permiso y permitir crear nuevas.
+    """
+    # Crear nueva solicitud
+    if request.method == 'POST' and 'solicitud_id' not in request.POST:
+        form = SolicitudPermisoForm(request.POST, request.FILES)
+        if form.is_valid():
+            solicitud = form.save(commit=False)
+            solicitud.fecha_solicitud = timezone.now()
+            solicitud.estado = 'Pendiente'
+            solicitud.save()
+            return redirect('solicitud_permiso_list')
+    else:
+        form = SolicitudPermisoForm()
+
+    permisos = SolicitudPermiso.objects.all().order_by('-fecha_solicitud')
+
+    # Estadísticas rápidas
+    dias_admin = 6
+    dias_vacaciones = 15
+    pendientes = permisos.filter(estado__iexact='Pendiente').count()
+    aprobadas = permisos.filter(estado__iexact='Aprobado').count()
+
+    context = {
+        'form': form,
+        'permisos': permisos,
+        'dias_admin': dias_admin,
+        'dias_vacaciones': dias_vacaciones,
+        'pendientes': pendientes,
+        'aprobadas': aprobadas,
+    }
+
+    return render(request, 'cesfam/solicitud_permiso_list.html', context)
+
+
+@login_required
+def cancelar_solicitud(request, id):
+    """
+    Cancela una solicitud, dejando el registro en la BD como 'Cancelado'.
+    """
+    solicitud = get_object_or_404(SolicitudPermiso, id=id)
+    if solicitud.estado == "Pendiente":
+        solicitud.estado = "Cancelado"
+        solicitud.save()
+    return redirect('solicitud_permiso_list')
+
+
+@login_required
+def editar_solicitud(request, id):
+    """
+    Editar una solicitud Pendiente.
+    """
+    solicitud = get_object_or_404(SolicitudPermiso, id=id)
+
+    if solicitud.estado != "Pendiente":
+        return redirect('solicitud_permiso_list')
+
+    # Si es POST, actualizar solicitud
+    if request.method == 'POST':
+        form = SolicitudPermisoForm(request.POST, request.FILES, instance=solicitud)
+        if form.is_valid():
+            form.save()
+            return redirect('solicitud_permiso_list')
+
+    # Si se pide JSON (para cargar el modal con JS)
+    if request.GET.get('json') == '1':
+        data = {
+            'tipo_permiso': solicitud.tipo_permiso,
+            'fecha_inicio': solicitud.fecha_inicio.strftime('%Y-%m-%d'),
+            'fecha_fin': solicitud.fecha_fin.strftime('%Y-%m-%d'),
+        }
+        return JsonResponse(data)
+
+    return redirect('solicitud_permiso_list')
+
+
+
 
 @login_required
 def licencia_list(request):

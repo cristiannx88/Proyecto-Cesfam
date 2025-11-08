@@ -1,105 +1,50 @@
 {% extends 'cesfam/base.html' %}
 
 {% block title %}Solicitud de Permiso - CESFAM{% endblock %}
-
 {% block page_title %}Gestión de Permisos y Días Administrativos{% endblock %}
 
 {% block extra_css %}
 <style>
-    .permission-card {
-        transition: transform 0.2s;
-        border-radius: 15px;
-        overflow: hidden;
-    }
-
-    .permission-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .status-badge {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
-    }
-
-    .status-pending {
-        background-color: #ffc107;
-        color: #000;
-    }
-
-    .status-approved {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .status-rejected {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .quick-stats {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .date-range-preview {
-        background: var(--light);
-        border-radius: 10px;
-        padding: 1rem;
-        margin-top: 1rem;
-    }
-
-    .calendar-view {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .permission-type-card {
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .permission-type-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-
-    .permission-type-card.selected {
-        border-color: var(--primary);
-        background-color: var(--primary-light);
-    }
+.permission-card {
+    transition: transform 0.2s;
+    border-radius: 15px;
+    overflow: hidden;
+}
+.permission-card:hover { transform: translateY(-5px); }
+.status-badge { font-size: 0.8rem; padding: 0.4rem 0.8rem; border-radius: 20px; }
+.status-pending { background-color: #ffc107; color: #000; }
+.status-approved { background-color: #28a745; color: white; }
+.status-rejected { background-color: #dc3545; color: white; }
+.quick-stats { background: white; border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.permission-type-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 </style>
 {% endblock %}
 
 {% block content %}
+
 <!-- Estadísticas Rápidas -->
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="quick-stats">
-            <h3 class="h2 mb-3">6</h3>
+        <div class="quick-stats text-center">
+            <h3 class="h2 mb-2">{{ dias_admin }}</h3>
             <p class="text-muted mb-0">Días Administrativos Disponibles</p>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="quick-stats">
-            <h3 class="h2 mb-3">15</h3>
+        <div class="quick-stats text-center">
+            <h3 class="h2 mb-2">{{ dias_vacaciones }}</h3>
             <p class="text-muted mb-0">Días de Vacaciones Restantes</p>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="quick-stats">
-            <h3 class="h2 mb-3">2</h3>
+        <div class="quick-stats text-center">
+            <h3 class="h2 mb-2">{{ pendientes }}</h3>
             <p class="text-muted mb-0">Solicitudes Pendientes</p>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="quick-stats">
-            <h3 class="h2 mb-3">8</h3>
+        <div class="quick-stats text-center">
+            <h3 class="h2 mb-2">{{ aprobadas }}</h3>
             <p class="text-muted mb-0">Permisos Aprobados</p>
         </div>
     </div>
@@ -107,204 +52,167 @@
 
 <!-- Botones de Acción -->
 <div class="mb-4">
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaSolicitudModal">
+    <button class="btn btn-primary" id="btnNuevaSolicitud" data-bs-toggle="modal" data-bs-target="#nuevaSolicitudModal">
         <i class="bi bi-plus-circle me-2"></i>Nueva Solicitud
     </button>
-    <button class="btn btn-outline-primary ms-2">
-        <i class="bi bi-calendar3 me-2"></i>Ver Calendario
-    </button>
+    <a href="{% url 'calendario_view' %}" class="btn btn-primary">
+        <i class="bi bi-calendar"></i> Ver Calendario
+    </a>
 </div>
 
 <!-- Lista de Solicitudes -->
 <div class="row">
-    <!-- Solicitud Pendiente -->
+    {% for permiso in permisos %}
     <div class="col-12 mb-3">
         <div class="card permission-card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <h5 class="card-title">Permiso Administrativo</h5>
-                        <p class="text-muted mb-0">Solicitado: 01/11/2025</p>
+                        <h5 class="card-title">{{ permiso.tipo_permiso }}</h5>
+                        <p class="text-muted mb-0">Solicitado: {{ permiso.fecha_solicitud|date:"d/m/Y H:i" }}</p>
                     </div>
-                    <span class="badge status-badge status-pending">Pendiente</span>
+                    <span class="badge status-badge 
+                        {% if permiso.estado == 'Pendiente' %}status-pending
+                        {% elif permiso.estado == 'Aprobado' %}status-approved
+                        {% else %}status-rejected{% endif %}">
+                        {{ permiso.estado }}
+                    </span>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <p class="mb-1"><strong>Fecha Inicio:</strong> 15/11/2025</p>
-                        <p class="mb-1"><strong>Fecha Fin:</strong> 15/11/2025</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="mb-1"><strong>Tipo:</strong> Día Administrativo</p>
-                        <p class="mb-1"><strong>Días Solicitados:</strong> 1</p>
-                    </div>
-                </div>
-                <p class="mb-3"><strong>Motivo:</strong> Trámites personales</p>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <button class="btn btn-sm btn-outline-danger me-2">
-                            <i class="bi bi-x-circle me-1"></i>Cancelar Solicitud
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil me-1"></i>Editar
-                        </button>
-                    </div>
-                    <small class="text-muted">En espera de aprobación</small>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Solicitud Aprobada -->
-    <div class="col-12 mb-3">
-        <div class="card permission-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h5 class="card-title">Día Libre</h5>
-                        <p class="text-muted mb-0">Solicitado: 25/10/2025</p>
-                    </div>
-                    <span class="badge status-badge status-approved">Aprobado</span>
-                </div>
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <p class="mb-1"><strong>Fecha Inicio:</strong> 05/11/2025</p>
-                        <p class="mb-1"><strong>Fecha Fin:</strong> 05/11/2025</p>
+                        <p><strong>Fecha Inicio:</strong> {{ permiso.fecha_inicio|date:"d/m/Y" }}</p>
+                        <p><strong>Fecha Fin:</strong> {{ permiso.fecha_fin|date:"d/m/Y" }}</p>
+                        <p><strong>Días solicitados:</strong> {{ permiso.dias_solicitados }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p class="mb-1"><strong>Tipo:</strong> Día Libre</p>
-                        <p class="mb-1"><strong>Días Solicitados:</strong> 1</p>
+                        {% if permiso.documento_respaldo %}
+                            <p><strong>Documento:</strong> 
+                                <a href="{{ permiso.documento_respaldo.url }}" target="_blank">Ver archivo</a>
+                            </p>
+                        {% endif %}
                     </div>
                 </div>
-                <p class="mb-3"><strong>Motivo:</strong> Asuntos familiares</p>
-                <div class="d-flex justify-content-between align-items-center">
+
+                <!-- Revisiones -->
+                {% if permiso.revisado_por_direccion or permiso.revisado_por_subdireccion %}
+                <div class="mb-2">
+                    {% if permiso.revisado_por_direccion %}
+                        <p class="mb-1"><strong>Revisado por Dirección:</strong> 
+                            {{ permiso.revisado_por_direccion }} - {{ permiso.fecha_revision_direccion|date:"d/m/Y H:i" }}
+                        </p>
+                    {% endif %}
+                    {% if permiso.revisado_por_subdireccion %}
+                        <p class="mb-1"><strong>Revisado por Subdirección:</strong> 
+                            {{ permiso.revisado_por_subdireccion }} - {{ permiso.fecha_revision_subdireccion|date:"d/m/Y H:i" }}
+                        </p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
                     <div>
-                        <button class="btn btn-sm btn-outline-secondary">
-                            <i class="bi bi-printer me-1"></i>Imprimir Comprobante
-                        </button>
+                        {% if permiso.estado == "Pendiente" %}
+                            <form method="POST" action="{% url 'cancelar_solicitud' permiso.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger me-2">
+                                    <i class="bi bi-x-circle me-1"></i>Cancelar Solicitud
+                                </button>
+                            </form>
+                            <button class="btn btn-sm btn-outline-primary btnEditar" 
+                                    data-id="{{ permiso.id }}">
+                                <i class="bi bi-pencil me-1"></i>Editar
+                            </button>
+                        {% elif permiso.estado == "Aprobado" %}
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-printer me-1"></i>Imprimir Comprobante
+                            </button>
+                        {% endif %}
                     </div>
-                    <small class="text-muted">Aprobado por: María González - 28/10/2025</small>
+                    <small class="text-muted">{{ permiso.estado_detallado }}</small>
                 </div>
             </div>
         </div>
     </div>
+    {% empty %}
+        <p class="text-muted text-center">No hay solicitudes registradas.</p>
+    {% endfor %}
 </div>
 
-<!-- Modal Nueva Solicitud -->
+<!-- Modal Nueva Solicitud (usado también para editar) -->
 <div class="modal fade" id="nuevaSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Nueva Solicitud de Permiso</h5>
+                <h5 class="modal-title" id="modalTitle">Nueva Solicitud de Permiso</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="solicitudForm">
-                    <!-- Selección de Tipo de Permiso -->
-                    <div class="mb-4">
-                        <label class="form-label">Tipo de Permiso</label>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="card permission-type-card" onclick="selectPermissionType(this, 'administrativo')">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-calendar-check display-4 text-primary"></i>
-                                        <h5 class="mt-3">Día Administrativo</h5>
-                                        <p class="text-muted mb-0">Para trámites y asuntos personales</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card permission-type-card" onclick="selectPermissionType(this, 'libre')">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-calendar-x display-4 text-primary"></i>
-                                        <h5 class="mt-3">Día Libre</h5>
-                                        <p class="text-muted mb-0">Compensación por horas extras</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <form method="POST" enctype="multipart/form-data" id="formSolicitud">
+                    {% csrf_token %}
+                    <input type="hidden" name="solicitud_id" id="solicitudId">
+                    <div class="mb-3">
+                        {{ form.tipo_permiso.label_tag }}
+                        {{ form.tipo_permiso }}
                     </div>
-
-                    <!-- Fechas -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Fecha Inicio</label>
-                            <input type="date" class="form-control" required>
+                            {{ form.fecha_inicio.label_tag }}
+                            {{ form.fecha_inicio }}
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Fecha Fin</label>
-                            <input type="date" class="form-control" required>
+                            {{ form.fecha_fin.label_tag }}
+                            {{ form.fecha_fin }}
                         </div>
                     </div>
-
-                    <!-- Previsualización del Rango -->
-                    <div class="date-range-preview mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span>Días solicitados: <strong>1</strong></span>
-                            <span>Días disponibles: <strong>6</strong></span>
-                        </div>
-                    </div>
-
-                    <!-- Motivo -->
                     <div class="mb-3">
-                        <label class="form-label">Motivo</label>
-                        <textarea class="form-control" rows="3" required></textarea>
-                        <div class="form-text">
-                            Por favor, proporciona una breve descripción del motivo de tu solicitud.
-                        </div>
+                        {{ form.documento_respaldo.label_tag }}
+                        {{ form.documento_respaldo }}
                     </div>
-
-                    <!-- Documentos de Respaldo -->
-                    <div class="mb-3">
-                        <label class="form-label">Documentos de Respaldo (opcional)</label>
-                        <input type="file" class="form-control">
-                        <div class="form-text">
-                            Puedes adjuntar documentos que respalden tu solicitud (máx. 5MB).
-                        </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary" id="btnSubmit">Enviar Solicitud</button>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="solicitudForm" class="btn btn-primary">Enviar Solicitud</button>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Manejador del formulario
-    const form = document.getElementById('solicitudForm');
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        // Aquí iría la lógica de envío
-        const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaSolicitudModal'));
-        modal.hide();
-        // Mostrar notificación
-        alert('Solicitud enviada exitosamente');
+document.addEventListener('DOMContentLoaded', function () {
+    const btnEditar = document.querySelectorAll('.btnEditar');
+    const modal = new bootstrap.Modal(document.getElementById('nuevaSolicitudModal'));
+    const modalTitle = document.getElementById('modalTitle');
+    const form = document.getElementById('formSolicitud');
+    const solicitudIdInput = document.getElementById('solicitudId');
+
+    btnEditar.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            fetch("{% url 'editar_solicitud' 0 %}".replace('0', id) + "?json=1")
+                .then(response => response.json())
+                .then(data => {
+                    modalTitle.textContent = "Editar Solicitud";
+                    form.tipo_permiso.value = data.tipo_permiso;
+                    form.fecha_inicio.value = data.fecha_inicio;
+                    form.fecha_fin.value = data.fecha_fin;
+                    solicitudIdInput.value = id;
+                    modal.show();
+                });
+        });
     });
 
-    // Actualizar previsualización de fechas
-    const fechaInicio = document.querySelector('input[type="date"]');
-    const fechaFin = document.querySelector('input[type="date"]');
-    [fechaInicio, fechaFin].forEach(input => {
-        input.addEventListener('change', updateDatePreview);
+    // Cuando se envíe el formulario, se enviará el id si es edición
+    form.addEventListener('submit', function() {
+        if(solicitudIdInput.value){
+            form.action = "{% url 'editar_solicitud' 0 %}".replace('0', solicitudIdInput.value);
+        } else {
+            form.action = "{% url 'solicitud_permiso_list' %}";
+        }
     });
 });
-
-function selectPermissionType(card, type) {
-    // Remover selección previa
-    document.querySelectorAll('.permission-type-card').forEach(c => {
-        c.classList.remove('selected');
-    });
-    // Seleccionar nueva tarjeta
-    card.classList.add('selected');
-}
-
-function updateDatePreview() {
-    // Aquí iría la lógica para actualizar la previsualización del rango de fechas
-}
 </script>
 {% endblock %}

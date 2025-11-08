@@ -10,5 +10,10 @@ urlpatterns = [
     path('agregar-evento/', views.agregar_evento, name='agregar_evento'),
     path('funcionarios/', views.funcionarios_list, name='funcionarios_list'),
     path('solicitud-permisos/', views.solicitud_permiso_list, name='solicitud_permiso_list'),
+
+    path('cancelar/<int:id>/', views.cancelar_solicitud, name='cancelar_solicitud'),
+    path('solicitudes/editar/<int:id>/', views.editar_solicitud, name='editar_solicitud'),
+    path('imprimir/<int:id>/', views.solicitud_permiso_list, name='imprimir_comprobante'),
+    
     path('licencias/', views.licencia_list, name='licencia_list'),
 ]
