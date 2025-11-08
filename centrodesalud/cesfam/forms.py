@@ -1,5 +1,5 @@
 from django import forms
-from .models import Comunicado, Documento, Usuario, Rol, SolicitudPermiso
+from .models import Comunicado, Documento, Usuario, Rol, SolicitudPermiso, LicenciaMedica
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -111,3 +111,24 @@ class SolicitudPermisoForm(forms.ModelForm):
             'fecha_fin': 'Fecha de Fin',
             'documento_respaldo': 'Documento de Respaldo (opcional)',
         }
+
+
+class LicenciaMedicaForm(forms.ModelForm):
+    class Meta:
+        model = LicenciaMedica
+        fields = ['funcionario', 'tipo_licencia', 'fecha_inicio', 'fecha_fin', 'archivo_licencia']
+        widgets = {
+            'funcionario': forms.Select(attrs={'class': 'form-select', 'required': True}),
+            'tipo_licencia': forms.Select(attrs={'class': 'form-select', 'required': True}),
+            'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'required': True}),
+            'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date', 'required': True}),
+            'archivo_licencia': forms.ClearableFileInput(attrs={'class': 'form-control', 'required': True}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        inicio = cleaned_data.get("fecha_inicio")
+        fin = cleaned_data.get("fecha_fin")
+        if inicio and fin and fin < inicio:
+            raise forms.ValidationError("La fecha fin no puede ser anterior a la fecha inicio.")
+        return cleaned_data

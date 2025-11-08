@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Documento, Comunicado, Usuario, LicenciaMedica, SolicitudPermiso, Calendario
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .forms import ComunicadoForm, DocumentoForm, RegistroForm, SolicitudPermisoForm
+from .forms import ComunicadoForm, DocumentoForm, RegistroForm, SolicitudPermisoForm, LicenciaMedicaForm
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
@@ -90,7 +90,7 @@ def comunicados_list(request):
 def calendario_view(request):
     """Vista principal del calendario"""
     year = timezone.now().year
-    eventos = Calendario.objects.all().order_by('fecha_inicio')
+    eventos = Calendario.objects.all().order_by('fecha_inicio')[:50]  # últimos 50 eventos
     return render(request, 'cesfam/calendario.html', {'year': year, 'eventos': eventos})
 
 
@@ -239,12 +239,41 @@ def editar_solicitud(request, id):
     return redirect('solicitud_permiso_list')
 
 
-
-
 @login_required
 def licencia_list(request):
-    """Vista para listar licencias médicas"""
-    licencias = LicenciaMedica.objects.all()
-    return render(request, 'cesfam/licencia_list.html', {'licencias': licencias})
+    licencias = LicenciaMedica.objects.all().select_related('funcionario', 'cargado_por')
+    today = timezone.now().date()
 
+    # Variables para estadísticas
+    activas = licencias.filter(fecha_inicio__lte=today, fecha_fin__gte=today).count()
+    expiradas = licencias.filter(fecha_fin__lt=today).count()
+    programadas = licencias.filter(fecha_inicio__gt=today).count()
+    total_dias = sum(l.dias_reposo for l in licencias)
 
+    # Formulario
+    if request.method == 'POST':
+        form = LicenciaMedicaForm(request.POST, request.FILES)
+        if form.is_valid():
+            licencia = form.save(commit=False)
+            licencia.dias_reposo = (licencia.fecha_fin - licencia.fecha_inicio).days + 1
+            licencia.numero_folio = f"LIC-{timezone.now().strftime('%Y%m%d%H%M%S')}"
+            licencia.cargado_por = request.user
+            licencia.save()
+            return redirect('licencia_list')
+    else:
+        form = LicenciaMedicaForm()
+
+    # Todos los usuarios para el select del formulario
+    usuarios = Usuario.objects.all()
+
+    context = {
+        'licencias': licencias,
+        'form': form,
+        'usuarios': usuarios,
+        'activas': activas,
+        'expiradas': expiradas,
+        'programadas': programadas,
+        'total_dias': total_dias,
+        'today': today,
+    }
+    return render(request, 'cesfam/licencia_list.html', context)

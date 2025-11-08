@@ -1,7 +1,6 @@
 {% extends 'cesfam/base.html' %}
 
 {% block title %}Licencias Médicas - CESFAM{% endblock %}
-
 {% block page_title %}Gestión de Licencias Médicas{% endblock %}
 
 {% block extra_css %}
@@ -105,124 +104,104 @@
 {% endblock %}
 
 {% block content %}
-<!-- Estadísticas Rápidas -->
+
 <div class="row mb-4">
     <div class="col-md-3">
         <div class="quick-stats">
-            <h3 class="h2 mb-3">2</h3>
+            <h3 class="h2 mb-3">{{ activas }}</h3>
             <p class="text-muted mb-0">Licencias Activas</p>
         </div>
     </div>
     <div class="col-md-3">
         <div class="quick-stats">
-            <h3 class="h2 mb-3">15</h3>
+            <h3 class="h2 mb-3">{{ total_dias }}</h3>
             <p class="text-muted mb-0">Días de Licencia</p>
         </div>
     </div>
     <div class="col-md-3">
         <div class="quick-stats">
-            <h3 class="h2 mb-3">1</h3>
-            <p class="text-muted mb-0">Pendientes de Revisión</p>
+            <h3 class="h2 mb-3">{{ programadas }}</h3>
+            <p class="text-muted mb-0">Licencias Programadas</p>
         </div>
     </div>
     <div class="col-md-3">
         <div class="quick-stats">
-            <h3 class="h2 mb-3">8</h3>
-            <p class="text-muted mb-0">Total Año Actual</p>
+            <h3 class="h2 mb-3">{{ expiradas }}</h3>
+            <p class="text-muted mb-0">Licencias Expiradas</p>
         </div>
     </div>
 </div>
 
-<!-- Botones de Acción -->
+
+<!-- Botón de Acción -->
 <div class="mb-4">
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaLicenciaModal">
         <i class="bi bi-plus-circle me-2"></i>Cargar Nueva Licencia
-    </button>
-    <button class="btn btn-outline-primary ms-2">
-        <i class="bi bi-download me-2"></i>Descargar Historial
     </button>
 </div>
 
 <!-- Lista de Licencias -->
 <div class="row">
-    <!-- Licencia Activa -->
+    {% for licencia in licencias %}
     <div class="col-12 mb-3">
         <div class="card license-card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <h5 class="card-title">Licencia Médica #123456</h5>
-                        <p class="text-muted mb-0">Registrada: 01/11/2025</p>
+                        <h5 class="card-title">Licencia Médica #{{ licencia.numero_folio }}</h5>
+                        <p class="text-muted mb-0">Registrada: {{ licencia.fecha_carga|date:"d/m/Y" }}</p>
                     </div>
-                    <span class="badge status-badge status-active">Activa</span>
+                    {% comment %}
+                    Mostrar el estado según fechas
+                    Activa: hoy >= inicio y <= fin
+                    Expirada: hoy > fin
+                    Programada: hoy < inicio
+                    {% endcomment %}
+                    
+                    {% if licencia.fecha_fin >= today and licencia.fecha_inicio <= today %}
+                        <span class="badge status-badge status-active">Activa</span>
+                    {% elif today > licencia.fecha_fin %}
+                        <span class="badge status-badge status-expired">Expirada</span>
+                    {% else %}
+                        <span class="badge status-badge status-pending">Programada</span>
+                    {% endif %}
                 </div>
+
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <p class="mb-1"><strong>Fecha Inicio:</strong> 01/11/2025</p>
-                        <p class="mb-1"><strong>Fecha Término:</strong> 15/11/2025</p>
-                        <p class="mb-1"><strong>Días Totales:</strong> 15</p>
+                        <p class="mb-1"><strong>Fecha Inicio:</strong> {{ licencia.fecha_inicio|date:"d/m/Y" }}</p>
+                        <p class="mb-1"><strong>Fecha Término:</strong> {{ licencia.fecha_fin|date:"d/m/Y" }}</p>
+                        <p class="mb-1"><strong>Días Totales:</strong> {{ licencia.dias_reposo }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p class="mb-1"><strong>Tipo:</strong> Enfermedad Común</p>
-                        <p class="mb-1"><strong>Médico:</strong> Dr. Juan Pérez</p>
-                        <p class="mb-1"><strong>Institución:</strong> Hospital Central</p>
+                        <p class="mb-1"><strong>Tipo:</strong> {{ licencia.get_tipo_licencia_display }}</p>
+                        <p class="mb-1"><strong>Funcionario:</strong> {{ licencia.funcionario }}</p>
+                        <p class="mb-1"><strong>Cargada por:</strong> {{ licencia.cargado_por }}</p>
                     </div>
                 </div>
+
                 <div class="mb-3">
                     <strong>Documentos:</strong>
                     <div class="d-flex gap-2 mt-2">
-                        <a href="#" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-file-pdf me-1"></i>Formulario Licencia
-                        </a>
-                        <a href="#" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-file-medical me-1"></i>Certificado Médico
+                        <a href="{{ licencia.archivo_licencia.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="bi bi-file-earmark-text me-1"></i>Archivo Licencia
                         </a>
                     </div>
                 </div>
+
                 <div class="timeline">
                     <div class="timeline-item">
                         <div class="timeline-dot"></div>
-                        <small class="text-muted">01/11/2025 - Licencia registrada</small>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-dot"></div>
-                        <small class="text-muted">01/11/2025 - Documentación validada</small>
+                        <small class="text-muted">{{ licencia.fecha_carga|date:"d/m/Y" }} - Licencia registrada</small>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Licencia Pendiente -->
-    <div class="col-12 mb-3">
-        <div class="card license-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h5 class="card-title">Licencia Médica #123457</h5>
-                        <p class="text-muted mb-0">Registrada: 31/10/2025</p>
-                    </div>
-                    <span class="badge status-badge status-pending">Pendiente</span>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <p class="mb-1"><strong>Fecha Inicio:</strong> 20/11/2025</p>
-                        <p class="mb-1"><strong>Fecha Término:</strong> 27/11/2025</p>
-                        <p class="mb-1"><strong>Días Totales:</strong> 7</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p class="mb-1"><strong>Tipo:</strong> Post Operatorio</p>
-                        <p class="mb-1"><strong>Médico:</strong> Dra. María Silva</p>
-                        <p class="mb-1"><strong>Institución:</strong> Clínica San José</p>
-                    </div>
-                </div>
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Pendiente de validación por RRHH
-                </div>
             </div>
         </div>
     </div>
+    {% empty %}
+    <p>No hay licencias registradas.</p>
+    {% endfor %}
 </div>
 
 <!-- Modal Nueva Licencia -->
@@ -234,53 +213,39 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="licenciaForm">
-                    <!-- Información General -->
+                <form id="licenciaForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <!-- Funcionario -->
                     <div class="mb-4">
-                        <h6>Información General</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">N° de Licencia</label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Tipo de Licencia</label>
-                                <select class="form-select" required>
-                                    <option value="">Seleccione tipo...</option>
-                                    <option>Enfermedad Común</option>
-                                    <option>Maternal / Paternal</option>
-                                    <option>Accidente Laboral</option>
-                                    <option>Post Operatorio</option>
-                                    <option>Otro</option>
-                                </select>
-                            </div>
-                        </div>
+                        <h6>Funcionario</h6>
+                        <select class="form-select" name="funcionario" required>
+                            <option value="">Seleccione funcionario...</option>
+                            {% for user in usuarios %}
+                                <option value="{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Tipo de Licencia -->
+                    <div class="mb-4">
+                        <h6>Tipo de Licencia</h6>
+                        <select class="form-select" name="tipo_licencia" required>
+                            <option value="">Seleccione tipo...</option>
+                            {% for key, value in form.tipo_licencia.field.choices %}
+                                <option value="{{ key }}">{{ value }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
 
                     <!-- Fechas -->
                     <div class="row mb-4">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Fecha Inicio</label>
-                            <input type="date" class="form-control" required>
+                            <input type="date" class="form-control" name="fecha_inicio" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Fecha Término</label>
-                            <input type="date" class="form-control" required>
-                        </div>
-                    </div>
-
-                    <!-- Información Médica -->
-                    <div class="mb-4">
-                        <h6>Información Médica</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Nombre del Médico</label>
-                                <input type="text" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Institución de Salud</label>
-                                <input type="text" class="form-control" required>
-                            </div>
+                            <input type="date" class="form-control" name="fecha_fin" required>
                         </div>
                     </div>
 
@@ -294,50 +259,29 @@
                             <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
                                 Seleccionar Archivos
                             </button>
-                            <input type="file" id="fileInput" class="d-none" multiple>
+                            <input type="file" id="fileInput" name="archivo_licencia" class="d-none" required>
                             <p class="text-muted mt-2">
                                 Formatos aceptados: PDF, JPG, PNG (máx. 10MB)
                             </p>
                         </div>
-                        <div id="filePreview" class="document-preview d-none">
-                            <!-- Los archivos seleccionados se mostrarán aquí -->
-                        </div>
+                        <div id="filePreview" class="document-preview d-none"></div>
                     </div>
 
-                    <!-- Observaciones -->
-                    <div class="mb-3">
-                        <label class="form-label">Observaciones</label>
-                        <textarea class="form-control" rows="3"></textarea>
-                        <div class="form-text">
-                            Agregue cualquier información adicional relevante.
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Registrar Licencia</button>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="licenciaForm" class="btn btn-primary">Registrar Licencia</button>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Manejador del formulario
-    const form = document.getElementById('licenciaForm');
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        // Aquí iría la lógica de envío
-        const modal = bootstrap.Modal.getInstance(document.getElementById('nuevaLicenciaModal'));
-        modal.hide();
-        // Mostrar notificación
-        alert('Licencia registrada exitosamente');
-    });
-
-    // Funcionalidad de drag and drop
     const dropArea = document.getElementById('dropArea');
     const fileInput = document.getElementById('fileInput');
     const filePreview = document.getElementById('filePreview');
@@ -346,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dropArea.addEventListener(eventName, preventDefaults, false);
     });
 
-    function preventDefaults (e) {
+    function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
@@ -373,6 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
+        fileInput.files = files; // importante: asignar al input real
         handleFiles({target: {files: files}});
     }
 
@@ -381,16 +326,16 @@ document.addEventListener('DOMContentLoaded', function() {
         filePreview.classList.remove('d-none');
         filePreview.innerHTML = files.map(file => `
             <div class="d-flex align-items-center justify-content-between p-2 border rounded mb-2">
-                <div>
-                    <i class="bi bi-file-earmark me-2"></i>
-                    ${file.name}
-                </div>
-                <button type="button" class="btn btn-sm btn-outline-danger">
-                    <i class="bi bi-x"></i>
-                </button>
+                <div><i class="bi bi-file-earmark me-2"></i>${file.name}</div>
             </div>
         `).join('');
     }
 });
 </script>
 {% endblock %}
+
+
+
+
+
+
