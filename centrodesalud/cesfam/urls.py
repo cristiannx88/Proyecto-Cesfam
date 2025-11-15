@@ -13,7 +13,8 @@ urlpatterns = [
 
     path('cancelar/<int:id>/', views.cancelar_solicitud, name='cancelar_solicitud'),
     path('solicitudes/editar/<int:id>/', views.editar_solicitud, name='editar_solicitud'),
-    path('imprimir/<int:id>/', views.solicitud_permiso_list, name='imprimir_comprobante'),
+
+    path('imprimir-comprobante/', views.descargar_comprobante, name='descargar_comprobante'),
     
     path('licencias/', views.licencia_list, name='licencia_list'),
 ]

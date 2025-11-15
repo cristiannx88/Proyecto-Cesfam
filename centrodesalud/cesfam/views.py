@@ -260,3 +260,154 @@ def licencia_list(request):
         'today': today,
     }
     return render(request, 'cesfam/licencia_list.html', context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from django.http import HttpResponse
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from django.conf import settings
+import os
+
+def descargar_comprobante(request):
+    buffer = io.BytesIO()
+    custom_width = 612
+    custom_height = 1200  # mayor alto para todo el contenido
+    c = canvas.Canvas(buffer, pagesize=(custom_width, custom_height))
+
+    # Logo
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'icons', 'logo_municipio.png')
+    c.setFillColor(colors.white)
+    c.rect(48, custom_height - 122, 94, 54, fill=1, stroke=0)  # fondo blanco para logo
+    c.drawImage(logo_path, 50, custom_height - 120, width=90, height=50, preserveAspectRatio=True, mask='auto')
+
+    c.setFillColor(colors.black)
+    c.setFont("Helvetica-Bold", 15)
+    c.drawCentredString(custom_width / 2, custom_height - 115, "SOLICITA DERECHO QUE INDICA")
+
+    y = custom_height - 150
+    line_height = 20
+    label_x = 60
+    line_x = 170
+
+    c.setFont("Helvetica", 11)
+    fields = [
+        ("NOMBRE:", 350),
+        ("RUT:", 100),
+        ("CARGO:", 350),
+        ("TIPO DE CONTRATO:", 150),
+        ("DEPARTAMENTO:", 450),
+        ("LUGAR DE TRABAJO:", 450),
+    ]
+
+    for i, (label, line_len) in enumerate(fields):
+        ypos = y - i * (line_height + 12)
+        c.drawString(label_x, ypos, label)
+        c.line(line_x, ypos - 4, line_x + line_len, ypos - 4)
+
+    y -= 8 * (line_height + 12)
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(label_x, y, "SOLICITA SE LE CONCEDA")
+    c.setFont("Helvetica", 11)
+
+    permisos = [
+        "FERIADO LEGAL:",
+        "PERMISO CON GOCE DE REMUNERACIONES:",
+        "PERMISO SIN GOCE DE REMUNERACIONES:",
+        "DEVOLUCIÓN DE TIEMPO LIBRE:",
+        "OTROS PERMISOS (ESPECIFICAR):",
+    ]
+
+    for i, texto in enumerate(permisos):
+        ypos = y - (i + 1) * (line_height + 7)
+        c.drawString(label_x + 10, ypos, texto)
+        c.line(label_x + 220, ypos - 4, label_x + 550, ypos - 4)
+
+    y = ypos - (line_height + 30)
+    c.drawString(label_x, y, "POR:")
+    c.line(label_x + 40, y - 4, label_x + 80, y - 4)
+    c.drawString(label_x + 90, y, "DÍAS")
+    c.drawString(label_x + 140, y, "DESDE:")
+    c.line(label_x + 190, y - 4, label_x + 235, y - 4)
+    c.line(label_x + 238, y - 4, label_x + 285, y - 4)
+    c.line(label_x + 288, y - 4, label_x + 330, y - 4)
+    c.drawString(label_x + 335, y, "HASTA:")
+    c.line(label_x + 380, y - 4, label_x + 410, y - 4)
+    c.line(label_x + 415, y - 4, label_x + 460, y - 4)
+    c.line(label_x + 465, y - 4, label_x + 510, y - 4)
+
+    y -= line_height + 14
+    c.drawString(label_x, y, "HORAS:")
+    c.line(label_x + 50, y - 4, label_x + 120, y - 4)
+    c.drawString(label_x + 130, y, "DESDE:")
+    c.line(label_x + 180, y - 4, label_x + 220, y - 4)
+    c.drawString(label_x + 230, y, "HASTA:")
+    c.line(label_x + 280, y - 4, label_x + 320, y - 4)
+
+    y -= line_height + 30
+    c.drawString(label_x, y, "DÍAS PENDIENTES:")
+    c.line(label_x + 110, y - 4, label_x + 260, y - 4)
+
+    y -= line_height + 40
+    c.line(custom_width - 260, y, custom_width - 60, y)
+    c.drawString(custom_width - 240, y - 15, "FIRMA DEL FUNCIONARIO")
+
+    y -= line_height + 55
+    c.line(label_x, y, label_x + 200, y)
+    c.drawString(label_x + 20, y - 15, "VB° NOMBRE Y FIRMA DEL JEFE DIRECTO")
+
+    y -= line_height + 37
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(label_x, y, "VB° ENCARGADO REGISTRO PERSONAL:")
+    c.setFont("Helvetica", 11)
+    y -= line_height + 8
+    c.drawString(label_x + 10, y, "NOMBRE:")
+    c.line(label_x + 80, y - 4, label_x + 250, y - 4)
+    y -= line_height + 5
+    c.drawString(label_x + 10, y, "CARGO:")
+    c.line(label_x + 80, y - 4, label_x + 250, y - 4)
+    y -= line_height + 10
+    c.drawString(label_x + 10, y, "OBSERVACIONES:")
+    c.line(label_x + 110, y - 4, label_x + 400, y - 4)
+
+    y += line_height * 2.3
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(custom_width / 2 + 20, y, "VB° JEFE GESTIÓN ADMINISTRATIVA:")
+    c.setFont("Helvetica", 11)
+    y -= line_height + 8
+    c.drawString(custom_width / 2 + 40, y, "NOMBRE:")
+    c.line(custom_width / 2 + 120, y - 4, custom_width / 2 + 430, y - 4)
+
+    y -= line_height + 60
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(label_x, y, "FECHA DE ENTREGA DEL SOLICITANTE:")
+    c.line(label_x + 210, y - 4, label_x + 350, y - 4)
+    y -= line_height + 10
+    c.drawString(label_x, y, "FECHA DE RECEPCIÓN OFIC. PERSONAL:")
+    c.line(label_x + 210, y - 4, label_x + 350, y - 4)
+
+    c.showPage()
+    c.save()
+
+    buffer.seek(0)
+    return HttpResponse(buffer, content_type='application/pdf')

@@ -108,7 +108,7 @@
 
 <div class="mt-4">
     <h5>Lista de Eventos Registrados</h5>
-    <div class="list-group">
+    <div class="list-group" id="listaEventos">
         {% for evento in eventos %}
         <div class="list-group-item list-group-item-action mb-2">
             <div class="d-flex justify-content-between">
@@ -200,21 +200,14 @@ document.addEventListener('DOMContentLoaded', function() {
             month: 'Mes',
             list: 'Lista'
         },
-        // ⚡ Cargar eventos dinámicamente según rango de fechas visible
         events: {
             url: "{% url 'eventos_json' %}",
             method: 'GET',
-            extraParams: function() {
-                return {}; // FullCalendar enviará start y end automáticamente
-            },
             failure: function() {
                 alert('Error al cargar los eventos');
             }
         },
         lazyFetching: true,
-        eventClick: function(info) {
-            alert(info.event.title);
-        },
         dateClick: function(info) {
             const eventoModal = new bootstrap.Modal(document.getElementById('eventoModal'));
             eventoModal.show();
@@ -228,7 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const eventoModalEl = document.getElementById('eventoModal');
     const eventoModalInstance = new bootstrap.Modal(eventoModalEl);
 
-    // Guardar evento con AJAX y cerrar modal correctamente
     document.getElementById('guardarEvento').addEventListener('click', function() {
         const titulo = document.getElementById('eventoTitulo').value;
         const tipo = document.getElementById('eventoTipo').value;
@@ -254,7 +246,31 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    calendar.refetchEvents(); // 🔄 Recarga eventos sin refrescar toda la página
+                    
+                    // 🔄 Recargar eventos del calendario
+                    calendar.refetchEvents();
+
+                    // 🔵 Agregar el evento a la lista dinámica
+                    const lista = document.getElementById('listaEventos');
+
+                    const nuevoEventoHTML = `
+                        <div class="list-group-item list-group-item-action mb-2">
+                            <div class="d-flex justify-content-between">
+                                <strong>${titulo}</strong>
+                                <span class="badge ${tipo === 'feriado' ? 'bg-danger' : 'bg-primary'}">
+                                    ${tipo.charAt(0).toUpperCase() + tipo.slice(1)}
+                                </span>
+                            </div>
+                            <div class="text-muted small">
+                                ${new Date(inicio).toLocaleString('es-CL')} -
+                                ${new Date(fin).toLocaleString('es-CL')}
+                            </div>
+                            ${descripcion ? `<p class="mb-0">${descripcion}</p>` : ""}
+                        </div>
+                    `;
+
+                    lista.insertAdjacentHTML('afterbegin', nuevoEventoHTML);
+
                     eventoModalInstance.hide();
                     document.getElementById('eventoForm').reset();
                 } else {

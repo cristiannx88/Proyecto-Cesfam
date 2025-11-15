@@ -9,22 +9,25 @@ COSAS POR HACER
 
 - Verificar funcionalidad de Ver,Editar y Descargar los archivos
 
-- Las funcionalidades que tienen los comunicados publicados que funcionen tambien como comentar,el check o la alerta
-(tambien que me permita publicar archivos en el comunidado)
-
 - En sesion admin que haya una seccion Gestion de cuentas donde pueda añadir eliminar(desactivar) editar
+
+
+
+
+
+ESTO IMPORTANTE
 
 - El listado esta bien el diseño,pero para que una solicitud se apruebe debe ser aprobada por la Direccion y la subdireccion,por ambos
 (Si solo lo ha aprobado 1,dejar en pendiente y mostrar quien la aprobo)
 (Si la aprobaron ambas mostrar como aprobado)
 (Mostrar quienes la aprobaron, y ademas la fecha y la hora)
 
-- Preguntar al profesor sobre los dias solicitadoos y dias disponibles,ya que eso creo que no se especifica
+- Falta funcionalidad del boton Imprimir comprobante,pero para revisarlo se debe aprobar una solicitud desde direccion y subdireccion
 
-- Si la solicitud fue aprobada, el boton Imprimir comprobante funcione,esto descargara un archivo pdf con un formulario.
-Los datos se rellenaran trayendolos de la base de datos
-(El formato del formulario es el que dejo el profe,debe ser el mismo)
-(Los campos de los que no se tenga info o se deban rellenar a mano dejarlos en blanco por ahora)
+- Control de sesiones, que los funcionarios normales no puedan ver todo
+
+
+
 
 - Revisar si los campos de las tablas de la bd se rellenan todos o cuales quedan Null para ver que hacer con ellos
 
@@ -32,21 +35,23 @@ Los datos se rellenaran trayendolos de la base de datos
 
 - Controlar o asignar de alguna forma si una cuenta esta activa o inactiva
 
-- Falta funcionalidad del boton Imprimir comprobante,pero para revisarlo se debe aprobar una solicitud desde direccion y subdireccion
+- Añadir logo y colores a la pagina (los que corresponden al cesfam)
 
-- Revisar para que es la tabla log actividad
 
-- django.db.utils.IntegrityError: (1048, "Column 'id_rol_id' cannot be null")
-da este error al crear un superusuario por primera vez en una db nueva
-se añadio funcion en model Usuario para que al superuser siempre le de el Rol Administrador
-Se debe crear previamente el Rol Administrador desde la shell
 
-- En calendario,cuando se añade un nuevo evento no se agrega automaticamente a la lista
-sino que hay que recargar la pagina,con los listados de documentos y comunicados no pasa esto,
-ya que se agregan al momento al listado,revisar eso(y con las otras secciones tambien)
+
+POR PREGUNTAR
+
+- Hacer lo de logs de actividad(dejar para el ultimo esta tarea) (preguntar al profe)
 
 - En carga de licencias,el formulario me obliga a añadir un archivo sino no se envia el form
-lo del archivo deberia ser opcional
+lo del archivo deberia ser opcional (preguntar al profe por esto)
+
+
+
+
+
+
 
 
 
@@ -99,6 +104,16 @@ se ven en el listado de debajo por Activo,Expirado y Programado
 
 - Ya funciona la seccion de Solicitud de permiso,lista bien y guarda en la db
 (Se añadio un campo extra a la tabla llamado solicitante_id)
+
+- Se añadio funcion en model Usuario para que al superuser siempre le de el Rol Administrador
+(se debe crear previamente el Rol Administrador desde la shell)
+
+- Se añadio el logo del cesfam a la pagina principal
+
+- Ahora en solicitud de permisos,en imprimir comprobante se genera un pdf similar al que el profe pidio
+incluye todos los campos y un logo
+(falta ver funcionalidad para cargar los datos desde la db)
+
 
 
 

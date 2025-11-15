@@ -266,6 +266,9 @@ class LicenciaMedica(models.Model):
     
     def __str__(self):
         return f"Licencia {self.numero_folio} - {self.funcionario}"
+    
+
+#Sirve para guardar un registro (log) de acciones realizadas por los usuarios en la plataforma.
 
 class LogActividad(models.Model):
     id_usuario = models.ForeignKey(Usuario, on_delete=models.PROTECT, related_name='logs')
