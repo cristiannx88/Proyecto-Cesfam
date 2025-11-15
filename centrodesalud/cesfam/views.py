@@ -36,7 +36,6 @@ def registro(request):
     return render(request, 'cesfam/registro.html', {'form': form})
 
 
-
 @login_required
 def documentos_list(request):
     documentos = Documento.objects.all().order_by('-fecha_subida')
@@ -60,7 +59,6 @@ def documentos_list(request):
     })
 
 
-
 @login_required
 def comunicados_list(request):
     """Vista para listar y crear comunicados"""
@@ -70,7 +68,7 @@ def comunicados_list(request):
         form = ComunicadoForm(request.POST, request.FILES)
         if form.is_valid():
             comunicado = form.save(commit=False)
-            comunicado.id_autor = request.user  # El superusuario actual
+            comunicado.id_autor = request.user
             comunicado.save()
             messages.success(request, 'Comunicado publicado correctamente.')
             return redirect('comunicados_list')
@@ -85,18 +83,15 @@ def comunicados_list(request):
     })
 
 
-
 @login_required
 def calendario_view(request):
-    """Vista principal del calendario"""
     year = timezone.now().year
-    eventos = Calendario.objects.all().order_by('fecha_inicio')[:50]  # últimos 50 eventos
+    eventos = Calendario.objects.all().order_by('fecha_inicio')[:50]
     return render(request, 'cesfam/calendario.html', {'year': year, 'eventos': eventos})
 
 
 @login_required
 def eventos_json(request):
-    """Retorna eventos según rango de fechas"""
     start = request.GET.get('start')
     end = request.GET.get('end')
 
@@ -114,7 +109,6 @@ def eventos_json(request):
     } for e in eventos]
 
     return JsonResponse(data, safe=False)
-
 
 
 @login_required
@@ -141,7 +135,6 @@ def agregar_evento(request):
     return JsonResponse({'status': 'error'})
 
 
-
 @login_required
 def funcionarios_list(request):
     funcionarios = Usuario.objects.all()
@@ -160,17 +153,16 @@ def funcionarios_list(request):
     return render(request, 'cesfam/funcionarios_list.html', context)
 
 
-
 @login_required
 def solicitud_permiso_list(request):
-    """
-    Vista para listar las solicitudes de permiso y permitir crear nuevas.
-    """
+    """Vista para listar y crear solicitudes de permiso"""
+
     # Crear nueva solicitud
-    if request.method == 'POST' and 'solicitud_id' not in request.POST:
+    if request.method == 'POST' and request.POST.get('solicitud_id') == '':
         form = SolicitudPermisoForm(request.POST, request.FILES)
         if form.is_valid():
             solicitud = form.save(commit=False)
+            solicitud.solicitante = request.user     # ← CORREGIDO
             solicitud.fecha_solicitud = timezone.now()
             solicitud.estado = 'Pendiente'
             solicitud.save()
@@ -178,7 +170,7 @@ def solicitud_permiso_list(request):
     else:
         form = SolicitudPermisoForm()
 
-    permisos = SolicitudPermiso.objects.all().order_by('-fecha_solicitud')
+    permisos = SolicitudPermiso.objects.filter(solicitante=request.user).order_by('-fecha_solicitud')
 
     # Estadísticas rápidas
     dias_admin = 6
@@ -200,9 +192,6 @@ def solicitud_permiso_list(request):
 
 @login_required
 def cancelar_solicitud(request, id):
-    """
-    Cancela una solicitud, dejando el registro en la BD como 'Cancelado'.
-    """
     solicitud = get_object_or_404(SolicitudPermiso, id=id)
     if solicitud.estado == "Pendiente":
         solicitud.estado = "Cancelado"
@@ -212,22 +201,19 @@ def cancelar_solicitud(request, id):
 
 @login_required
 def editar_solicitud(request, id):
-    """
-    Editar una solicitud Pendiente.
-    """
     solicitud = get_object_or_404(SolicitudPermiso, id=id)
 
     if solicitud.estado != "Pendiente":
         return redirect('solicitud_permiso_list')
 
-    # Si es POST, actualizar solicitud
     if request.method == 'POST':
         form = SolicitudPermisoForm(request.POST, request.FILES, instance=solicitud)
         if form.is_valid():
-            form.save()
+            permiso = form.save(commit=False)
+            permiso.solicitante = solicitud.solicitante   # ← CORREGIDO
+            permiso.save()
             return redirect('solicitud_permiso_list')
 
-    # Si se pide JSON (para cargar el modal con JS)
     if request.GET.get('json') == '1':
         data = {
             'tipo_permiso': solicitud.tipo_permiso,
@@ -244,13 +230,11 @@ def licencia_list(request):
     licencias = LicenciaMedica.objects.all().select_related('funcionario', 'cargado_por')
     today = timezone.now().date()
 
-    # Variables para estadísticas
     activas = licencias.filter(fecha_inicio__lte=today, fecha_fin__gte=today).count()
     expiradas = licencias.filter(fecha_fin__lt=today).count()
     programadas = licencias.filter(fecha_inicio__gt=today).count()
     total_dias = sum(l.dias_reposo for l in licencias)
 
-    # Formulario
     if request.method == 'POST':
         form = LicenciaMedicaForm(request.POST, request.FILES)
         if form.is_valid():
@@ -263,7 +247,6 @@ def licencia_list(request):
     else:
         form = LicenciaMedicaForm()
 
-    # Todos los usuarios para el select del formulario
     usuarios = Usuario.objects.all()
 
     context = {

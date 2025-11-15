@@ -65,6 +65,19 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+    
+    def save(self, *args, **kwargs):
+        # Asignar rol Administrador automáticamente a superusuarios
+        if self.is_superuser:
+            try:
+                rol_admin = Rol.objects.get(nombre_rol="Administrador")
+                self.id_rol = rol_admin
+            except Rol.DoesNotExist:
+                # Evita error si aún no creaste el rol
+                pass
+
+        super().save(*args, **kwargs)
+
 
 
 class Documento(models.Model):
@@ -165,6 +178,12 @@ class SolicitudPermiso(models.Model):
         ('Cancelado', 'Cancelado'),
     ]
 
+    solicitante = models.ForeignKey(
+        Usuario,
+        on_delete=models.PROTECT,
+        related_name='solicitudes_permiso'
+    )
+
     tipo_permiso = models.CharField(max_length=50, choices=TIPOS_PERMISO)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
@@ -178,8 +197,12 @@ class SolicitudPermiso(models.Model):
     revisado_por_subdireccion = models.CharField(max_length=100, null=True, blank=True)
     fecha_revision_subdireccion = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        db_table = 'solicitud_permiso'
+
     def __str__(self):
         return f"{self.tipo_permiso} ({self.estado})"
+    
 
     def estado_detallado(self):
         if self.estado.lower() == 'aprobado':
@@ -192,10 +215,13 @@ class SolicitudPermiso(models.Model):
                 return "Aprobado por " + " y ".join(detalles)
             else:
                 return "Aprobado"
+
         elif self.estado.lower() == 'rechazado':
             return "Solicitud Rechazada"
+
         elif self.estado.lower() == 'cancelado':
             return "Solicitud cancelada por el funcionario"
+
         else:  # Pendiente
             if self.revisado_por_direccion and not self.revisado_por_subdireccion:
                 return "Pendiente: Falta revisión Subdirección"
@@ -204,11 +230,11 @@ class SolicitudPermiso(models.Model):
             else:
                 return "Pendiente (sin revisión)"
 
-
     @property
     def dias_solicitados(self):
         """Calcula automáticamente la cantidad de días solicitados"""
         return (self.fecha_fin - self.fecha_inicio).days + 1
+
 
 
 

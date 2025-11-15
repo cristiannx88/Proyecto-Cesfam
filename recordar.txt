@@ -36,6 +36,20 @@ Los datos se rellenaran trayendolos de la base de datos
 
 - Revisar para que es la tabla log actividad
 
+- django.db.utils.IntegrityError: (1048, "Column 'id_rol_id' cannot be null")
+da este error al crear un superusuario por primera vez en una db nueva
+se añadio funcion en model Usuario para que al superuser siempre le de el Rol Administrador
+Se debe crear previamente el Rol Administrador desde la shell
+
+- En calendario,cuando se añade un nuevo evento no se agrega automaticamente a la lista
+sino que hay que recargar la pagina,con los listados de documentos y comunicados no pasa esto,
+ya que se agregan al momento al listado,revisar eso(y con las otras secciones tambien)
+
+- En carga de licencias,el formulario me obliga a añadir un archivo sino no se envia el form
+lo del archivo deberia ser opcional
+
+
+
 
 
 
@@ -62,6 +76,9 @@ tambien si hay inactividad por 1 hora se cierra la sesion
 
 - Pagina de registro lista
 
+- El registro funciona correctamente
+(el funcionario puede ver todas las secciones,no deberia verlas todas,arreglar eso)
+
 - Se pueden visualizar los trabajadores con sus datos en la seccion Funcionarios
 Se añadio 2 tablas extras, Cargo y Departamento para asignarlos a los funcionarios
 (Falta que el boton contactar en cada tarjeta del funcionario lleve a su gmail)
@@ -78,6 +95,10 @@ los detalles en el listado estan listos
 se ven en el listado de debajo por Activo,Expirado y Programado
 (aun falta ajustar los detalles de los listados como quien subio la licencia etc)
 
+- Se modifico el nombre de la tabla solicitud_permiso en la db
+
+- Ya funciona la seccion de Solicitud de permiso,lista bien y guarda en la db
+(Se añadio un campo extra a la tabla llamado solicitante_id)
 
 
 
@@ -97,7 +118,7 @@ se ven en el listado de debajo por Activo,Expirado y Programado
 
 Usuarios creados:
 Juanrojas
-cesfam123
+juan1234
 
 Administrador (superusuario)
 123456
